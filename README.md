@@ -19,3 +19,7 @@ This repo contains Vivado platforms.
 Platforms list:
 - ve2302_1gEth
 
+## License
+
+(C) Copyright 2024, Advanced Micro Devices Inc.\
+SPDX-License-Identifier: MIT
