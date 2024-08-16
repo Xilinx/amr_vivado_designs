@@ -12,14 +12,8 @@ This repo contains submodules. To clone this repo, run:
 git clone --recursive https://github.com/Xilinx/emb_plus_vivado_designs.git
 ```
 
-## Contents
-
-This repo contains Vivado platforms.
-
-Platforms list:
-- ve2302_1gEth
-
 ## License
 
 (C) Copyright 2024, Advanced Micro Devices Inc.\
 SPDX-License-Identifier: MIT
+
