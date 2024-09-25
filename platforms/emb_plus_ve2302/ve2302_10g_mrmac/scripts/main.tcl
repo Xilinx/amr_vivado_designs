@@ -3,7 +3,6 @@
 
 # Set the necessary Vivado params for the platform build
 enable_beta_device xcve2302-*
-xhub::install [xhub::get_xitems xilinx.com:xilinx_board_store:emb-plus-vpr-4616:1.0]
 set_param board.repoPaths {../../../common/XilinxBoardStore/boards/Xilinx/}
 
 # Set project variables
