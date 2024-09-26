@@ -165,6 +165,7 @@ pipeline {
     options {
         // don't let the implicit checkout happen
         skipDefaultCheckout true
+        buildDiscarder(logRotator(numToKeepStr: '20'))
     }
     triggers {
         cron(env.BRANCH_NAME == 'main' ? 'H 21 * * *' : '')
@@ -223,27 +224,9 @@ pipeline {
                         createWorkDir()
                     }
                 }
-                stage('ve2302_es1_pcie_qdma platform build')  {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    steps {
-                        createWorkDir()
-                    }
-                }
                 stage('ve2302_10g_mrmac')  {
                     environment {
                         pfm_name="ve2302_10g_mrmac"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    steps {
-                        createWorkDir()
-                    }
-                }
-                stage('ve2302_es1_10g_mrmac platform build')  {
-                    environment {
-                        pfm_name="ve2302_es1_10g_mrmac"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     steps {
@@ -282,66 +265,10 @@ pipeline {
                         }
                     }
                 }
-                stage('ve2302_es1_pcie_qdma 1gEth platform build')  {
-                    environment {
-                        pfm_base="ve2302_pcie_qdma"
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_1gEth"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_1gEth/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                            expression { true }
-                        }
-                    }
-                    steps {
-                        buildXSA()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_ES1_PFM_SUCCESS = '1'
-                            }
-                            deployBaseXSA()
-                        }
-                    }
-                }
                 stage('ve2302_10g_mrmac platform build')  {
                     environment {
                         pfm_base="ve2302_10g_mrmac"
                         pfm_name="ve2302_10g_mrmac"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_10g_mrmac"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_10g_mrmac/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                            expression { true }
-                        }
-                    }
-                    steps {
-                        buildXSA()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_ES1_PFM_SUCCESS = '1'
-                            }
-                            deployBaseXSA()
-                        }
-                    }
-                }
-                stage('ve2302_es1_10g_mrmac platform build')  {
-                    environment {
-                        pfm_base="ve2302_10g_mrmac"
-                        pfm_name="ve2302_es1_10g_mrmac"
                         board="emb_plus_ve2302"
                         silicon="es1"
                         work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_10g_mrmac"
