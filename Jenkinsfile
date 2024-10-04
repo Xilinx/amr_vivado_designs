@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2021-2024 Advanced Micro Devices, Inc.
+ * Copyright (C) 2024 Advanced Micro Devices, Inc.
  * SPDX-License-Identifier: MIT
  *
  */
@@ -48,7 +48,7 @@ def createWorkDir() {
 def buildXSA() {
     sh label: 'platform build',
     script: '''
-        pwd 
+        pwd
         ls -la
         tree .
         ls -la
@@ -68,13 +68,13 @@ def deployBaseXSA() {
         DSTDIR=${DEPLOY_DIR}/Vivado_files
         mkdir -p ${DSTDIR}/${pfm_name}
         pwd
-        ls -la 
+        ls -la
         tree .
         ls -la
         cp *.xsa ${DSTDIR}/${pfm_name}
         pushd ${DSTDIR}/
-        ls -la 
-        pwd 
+        ls -la
+        pwd
         tree .
         rsync -avh --delete ${work_dir}/project ${DSTDIR}/${pfm_name}
     '''

@@ -14,6 +14,5 @@ git clone --recursive https://github.com/Xilinx/emb_plus_vivado_designs.git
 
 ## License
 
-(C) Copyright 2024, Advanced Micro Devices Inc.\
+Copyright (C) 2024 Advanced Micro Devices, Inc.
 SPDX-License-Identifier: MIT
-
