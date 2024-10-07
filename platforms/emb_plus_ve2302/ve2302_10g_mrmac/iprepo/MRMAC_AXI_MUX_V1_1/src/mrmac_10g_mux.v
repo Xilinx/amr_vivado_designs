@@ -1,9 +1,6 @@
+//Copyright (C) 2021, Xilinx, Inc.
+//SPDX-License-Identifier: MIT
 `timescale 1ns / 1ps
-// (C) Copyright 2020 - 2021 Xilinx, Inc.
-// SPDX-License-Identifier: Apache-2.0
-
-
-
 
 module mrmac_10g_mux(
  input  wire           tx_s_aclk,
