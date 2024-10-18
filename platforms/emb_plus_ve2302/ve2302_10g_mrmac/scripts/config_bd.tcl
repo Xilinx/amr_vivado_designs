@@ -1,6 +1,5 @@
-# Copyright (C) 2024 Advanced Micro Devices, Inc.
-# SPDX-License-Identifier: MIT
 
+################################################################
 # This is a generated script based on design: ve2302_10g_mrmac
 #
 # Though there are limitations about the generated script,
@@ -980,10 +979,6 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI_GPIO_2
 
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI
-
-  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S_AXI1
-
 
   # Create pins
   create_bd_pin -dir I -type clk s_axi_aclk
@@ -1381,28 +1376,6 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
   # Create instance: xlconstant_tx_reset_done, and set properties
   set xlconstant_tx_reset_done [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant xlconstant_tx_reset_done ]
 
-  # Create instance: axi_gpio_gt_rate_reset_ctl2, and set properties
-  set axi_gpio_gt_rate_reset_ctl2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_gt_rate_reset_ctl2 ]
-  set_property -dict [list \
-    CONFIG.C_ALL_OUTPUTS {1} \
-    CONFIG.C_ALL_OUTPUTS_2 {1} \
-    CONFIG.C_GPIO2_WIDTH {3} \
-    CONFIG.C_GPIO_WIDTH {32} \
-    CONFIG.C_IS_DUAL {1} \
-  ] $axi_gpio_gt_rate_reset_ctl2
-
-
-  # Create instance: axi_gpio_gt_rate_reset_ctl3, and set properties
-  set axi_gpio_gt_rate_reset_ctl3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_gt_rate_reset_ctl3 ]
-  set_property -dict [list \
-    CONFIG.C_ALL_OUTPUTS {1} \
-    CONFIG.C_ALL_OUTPUTS_2 {1} \
-    CONFIG.C_GPIO2_WIDTH {3} \
-    CONFIG.C_GPIO_WIDTH {32} \
-    CONFIG.C_IS_DUAL {1} \
-  ] $axi_gpio_gt_rate_reset_ctl3
-
-
   # Create instance: reset_zero, and set properties
   set reset_zero [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant reset_zero ]
   set_property CONFIG.CONST_VAL {0} $reset_zero
@@ -1416,8 +1389,6 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
   connect_bd_intf_net -intf_net Conn5 [get_bd_intf_pins GT/GT_Serial] [get_bd_intf_pins GT_Serial]
   connect_bd_intf_net -intf_net Conn6 [get_bd_intf_pins axi_gpio_reset_mask/S_AXI] [get_bd_intf_pins S_AXI_GPIO_2]
   connect_bd_intf_net -intf_net Conn7 [get_bd_intf_pins axi_gpio_gt_rate_reset_ctl1/S_AXI] [get_bd_intf_pins S_AXI_GPIO_1]
-  connect_bd_intf_net -intf_net Conn8 [get_bd_intf_pins axi_gpio_gt_rate_reset_ctl2/S_AXI] [get_bd_intf_pins S_AXI]
-  connect_bd_intf_net -intf_net Conn9 [get_bd_intf_pins axi_gpio_gt_rate_reset_ctl3/S_AXI] [get_bd_intf_pins S_AXI1]
   connect_bd_intf_net -intf_net mrmac_10g_156_core_gt_rx_serdes_interface_0 [get_bd_intf_pins mrmac_10g_156_core/gt_rx_serdes_interface_0] [get_bd_intf_pins GT/RX0_GT_IP_Interface]
   connect_bd_intf_net -intf_net mrmac_10g_156_core_gt_rx_serdes_interface_1 [get_bd_intf_pins mrmac_10g_156_core/gt_rx_serdes_interface_1] [get_bd_intf_pins GT/RX1_GT_IP_Interface]
   connect_bd_intf_net -intf_net mrmac_10g_156_core_gt_tx_serdes_interface_0 [get_bd_intf_pins mrmac_10g_156_core/gt_tx_serdes_interface_0] [get_bd_intf_pins GT/TX0_GT_IP_Interface]
@@ -1500,8 +1471,8 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
   connect_bd_net -net rx_ts_clk_1 [get_bd_pins rx_ts_clk] [get_bd_pins mrmac_10g_156_core/rx_ts_clk] [get_bd_pins mrmac_10g_156_core/tx_ts_clk]
   connect_bd_net -net rx_usr_rdy_ch0_Dout [get_bd_pins rx_usr_rdy_ch0/Dout] [get_bd_pins GT/ch0_rxuserrdy]
   connect_bd_net -net rx_usr_rdy_ch1_Dout [get_bd_pins rx_usr_rdy_ch1/Dout] [get_bd_pins GT/ch1_rxuserrdy]
-  connect_bd_net -net s_axi_aclk_1 [get_bd_pins s_axi_aclk] [get_bd_pins axi_gpio_gt_rate_reset_ctl0/s_axi_aclk] [get_bd_pins mrmac_10g_156_core/s_axi_aclk] [get_bd_pins axi_gpio_reset_mask/s_axi_aclk] [get_bd_pins axi_gpio_gt_rate_reset_ctl1/s_axi_aclk] [get_bd_pins GT/s_axi_aclk] [get_bd_pins axi_gpio_gt_rate_reset_ctl2/s_axi_aclk] [get_bd_pins axi_gpio_gt_rate_reset_ctl3/s_axi_aclk]
-  connect_bd_net -net s_axi_aresetn_1 [get_bd_pins s_axi_aresetn] [get_bd_pins axi_gpio_gt_rate_reset_ctl0/s_axi_aresetn] [get_bd_pins mrmac_10g_156_core/s_axi_aresetn] [get_bd_pins axi_gpio_gt_rate_reset_ctl1/s_axi_aresetn] [get_bd_pins GT/s_axi_aresetn] [get_bd_pins axi_gpio_reset_mask/s_axi_aresetn] [get_bd_pins axi_gpio_gt_rate_reset_ctl2/s_axi_aresetn] [get_bd_pins axi_gpio_gt_rate_reset_ctl3/s_axi_aresetn]
+  connect_bd_net -net s_axi_aclk_1 [get_bd_pins s_axi_aclk] [get_bd_pins axi_gpio_gt_rate_reset_ctl0/s_axi_aclk] [get_bd_pins mrmac_10g_156_core/s_axi_aclk] [get_bd_pins axi_gpio_reset_mask/s_axi_aclk] [get_bd_pins axi_gpio_gt_rate_reset_ctl1/s_axi_aclk] [get_bd_pins GT/s_axi_aclk]
+  connect_bd_net -net s_axi_aresetn_1 [get_bd_pins s_axi_aresetn] [get_bd_pins axi_gpio_gt_rate_reset_ctl0/s_axi_aresetn] [get_bd_pins mrmac_10g_156_core/s_axi_aresetn] [get_bd_pins axi_gpio_gt_rate_reset_ctl1/s_axi_aresetn] [get_bd_pins GT/s_axi_aresetn] [get_bd_pins axi_gpio_reset_mask/s_axi_aresetn]
   connect_bd_net -net tx_axi_clk_1 [get_bd_pins tx_axi_clk] [get_bd_pins mrmac_10g_156_core/tx_axi_clk] [get_bd_pins mrmac_10g_156_core/rx_axi_clk]
   connect_bd_net -net tx_axis_tdata0_1 [get_bd_pins tx_axis_tdata0] [get_bd_pins mrmac_10g_156_core/tx_axis_tdata0]
   connect_bd_net -net tx_axis_tdata2_1 [get_bd_pins tx_axis_tdata2] [get_bd_pins mrmac_10g_156_core/tx_axis_tdata2]
@@ -1877,7 +1848,7 @@ proc create_root_design { parentCell } {
   # Create instance: smartconnect_gpios, and set properties
   set smartconnect_gpios [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smartconnect_gpios ]
   set_property -dict [list \
-    CONFIG.NUM_MI {5} \
+    CONFIG.NUM_MI {3} \
     CONFIG.NUM_SI {1} \
   ] $smartconnect_gpios
 
@@ -1940,8 +1911,6 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net smartconnect_2_M02_AXI [get_bd_intf_pins smartconnect_gpios/M02_AXI] [get_bd_intf_pins MRMAC_GT/S_AXI_GPIO_2]
   connect_bd_intf_net -intf_net smartconnect_3_M00_AXI [get_bd_intf_pins smartconnect_mcmdm0/M00_AXI] [get_bd_intf_pins axi_noc_ic/S06_AXI]
   connect_bd_intf_net -intf_net smartconnect_axi_lite_M04_AXI [get_bd_intf_pins smartconnect_axi_lite/M04_AXI] [get_bd_intf_pins DATAPATH_MCDMA_1/S_AXI_LITE]
-  connect_bd_intf_net -intf_net smartconnect_gpios_M03_AXI [get_bd_intf_pins smartconnect_gpios/M03_AXI] [get_bd_intf_pins MRMAC_GT/S_AXI]
-  connect_bd_intf_net -intf_net smartconnect_gpios_M04_AXI [get_bd_intf_pins smartconnect_gpios/M04_AXI] [get_bd_intf_pins MRMAC_GT/S_AXI1]
 
   # Create port connections
   connect_bd_net -net DATAPATH_MCDMA_0_mm2s_ch1_introut [get_bd_pins DATAPATH_MCDMA_0/mm2s_ch1_introut] [get_bd_pins cips/pl_ps_irq0]
@@ -1997,8 +1966,6 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x000980000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces cips/LPD_AXI_NOC_0] [get_bd_addr_segs axi_noc_ic/S05_AXI/C1_DDR_LOW1] -force
   assign_bd_address -offset 0xA4020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs MRMAC_GT/axi_gpio_gt_rate_reset_ctl0/S_AXI/Reg] -force
   assign_bd_address -offset 0xA4030000 -range 0x00010000 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs MRMAC_GT/axi_gpio_gt_rate_reset_ctl1/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA4040000 -range 0x00010000 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs MRMAC_GT/axi_gpio_gt_rate_reset_ctl2/S_AXI/Reg] -force
-  assign_bd_address -offset 0xA4050000 -range 0x00010000 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs MRMAC_GT/axi_gpio_gt_rate_reset_ctl3/S_AXI/Reg] -force
   assign_bd_address -offset 0xA4060000 -range 0x00010000 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs MRMAC_GT/axi_gpio_reset_mask/S_AXI/Reg] -force
   assign_bd_address -offset 0xA4070000 -range 0x00010000 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs DATAPATH_MCDMA_1/axi_mcdma_0/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0xA4080000 -range 0x00010000 -with_name SEG_axi_mcdma_0_Reg_1 -target_address_space [get_bd_addr_spaces cips/M_AXI_FPD] [get_bd_addr_segs DATAPATH_MCDMA_0/axi_mcdma_0/S_AXI_LITE/Reg] -force
