@@ -1,3 +1,5 @@
+# Copyright (C) 2024 Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: MIT
 
 ################################################################
 # This is a generated script based on design: ve2302_10g_mrmac
