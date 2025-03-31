@@ -12,7 +12,7 @@ META_JSON =  $(VIV_PRJ_DIR)/partition_metadata.json
 META_PY = $(VIV_SCRIPTS_DIR)/partition_metadata_gen_script.py
 
 VIV_TIMING_ERROR = "CRITICAL WARNING: \[Timing 38-282\] The design failed to meet the timing requirements"
-VIV_DESIGN = ve2302_pcie_qdma
+VIV_DESIGN = ve2302_amr_dev
 VIV_XSA = $(VIV_PRJ_DIR)/$(VIV_DESIGN).xsa
 VIV_SRC = $(VIV_SCRIPTS_DIR)/main.tcl
 

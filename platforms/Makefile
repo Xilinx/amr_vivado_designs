@@ -7,9 +7,9 @@ RM = rm -rf
 MV = mv
 XSCT = $(XILINX_VITIS)/bin/xsct
 JOBS ?= 8
-PLATFORM ?= ve2302_pcie_qdma
+PLATFORM ?= ve2302_amr_dev
 VERSION ?= 202420_1
-VIV_DESIGN = ve2302_pcie_qdma
+VIV_DESIGN = ve2302_amr_dev
 
 PFM_DIR = xilinx_$(VIV_DESIGN)_$(VERSION)
 PFM_PRJ_DIR = xsct/$(VIV_XSA_NAME)/$(VIV_XSA_NAME)/export/xilinx_$(VIV_DESIGN)_$(VIV_DESIGN)_1_0

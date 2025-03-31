@@ -10,14 +10,14 @@ PFM_DIR = $(PWD)/platforms
 PFM_VER = 202420_1
 
 # valid platforms / overlays
-PFM_LIST += ve2302_pcie_qdma
+PFM_LIST += ve2302_amr_dev
 OVERLAY_LIST += verify_test
 
 VITIS_DIR = overlays/examples
 VITIS_OVERLAY_DIR = $(VITIS_DIR)/$(OVERLAY)
 VITIS_OVERLAY_BIT = $(VITIS_OVERLAY_DIR)/binary_container_1/link/int/system.bit
 
-PFM_NAME = ve2302_pcie_qdma
+PFM_NAME = ve2302_amr_dev
 
 .PHONY: help
 help:
@@ -40,7 +40,7 @@ help:
 
 # override platform name based on overlay
 ifneq ($(filter $(OVERLAY), $(OVERLAY_LIST)),)
-  PFM = ve2302_pcie_qdma
+  PFM = ve2302_amr_dev
 endif
 
 PFM_XPFM = $(PFM_DIR)/xilinx_$(PFM_NAME)_$(PFM_VER)/$(PFM_NAME).xpfm

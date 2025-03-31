@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 ################################################################
-# This is a generated script based on design: ve2302_pcie_qdma
+# This is a generated script based on design: ve2302_amr_dev
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -24,7 +24,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source ve2302_pcie_qdma_script.tcl
+# source ve2302_amr_dev_script.tcl
 
 
 # The design that will be created by this Tcl script contains the following
