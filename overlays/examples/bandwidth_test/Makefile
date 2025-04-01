@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2025 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 SHELL = bash
@@ -11,16 +11,16 @@ COMMON_PATH = $(REPO_PATH)/common
 SRC = ./src
 RM = rm -rf
 MV = mv
-PYTHON = python3
-META_GEN = $(COMMON_PATH)/gen_metadata.py
-VIV_DIR = $(REPO_PATH)/emb_plus_ve2302/platforms/vivado/ve2302_pcie_qdma
-XUTIL = xclbinutil 
+#PYTHON = python3
+#META_GEN = $(COMMON_PATH)/gen_metadata.py
+#VIV_DIR = $(REPO_PATH)/platforms/emb_plus_ve2302/ve2302_amr_dev
+#META_JSON =  $(CURDIR)/$(KERNEL)_partition_metadata.json
+XUTIL = xclbinutil
 
 # Kernel name
 KERNEL ?= bandwidth
 KERNEL_XO = $(KERNEL).xo
 SRC_FILE = $(SRC)/$(KERNEL).cpp
-META_JSON =  $(CURDIR)/$(KERNEL)_partition_metadata.json
 
 # v++ flags
 VPP = v++
@@ -44,9 +44,9 @@ BOARD = ve2302
 BUILD_DIR = xrt-$(KERNEL)-dma-test-$(BOARD)
 DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
 
-VIV_CONFIG = $(VIV_DIR)/scripts/config_bd.tcl
-ULP_CONFIG = $(VIV_DIR)/scripts/ulp.tcl
-VIV_PDI = $(CURDIR)/_x/link/int/partial.pdi
+#VIV_CONFIG = $(VIV_DIR)/scripts/config_bd.tcl
+#ULP_CONFIG = $(VIV_DIR)/scripts/ulp.tcl
+#VIV_PDI = $(CURDIR)/_x/link/int/partial.pdi
 
 PKGNAME = $(BUILD_DIR)_$(VERSION)
 CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
@@ -68,14 +68,15 @@ $(KERNEL_XO): $(SRC_FILE)
 
 .PHONY: xclbin
 $(XCLBIN_FILE): $(BINARY_CONTAINER)
-	$(PYTHON) $(META_GEN) -config $(VIV_CONFIG) -pdi $(VIV_PDI) -ulp $(ULP_CONFIG) -o $(META_JSON)
-	$(XUTIL) --input $(BINARY_CONTAINER) --add-section PARTITION_METADATA:JSON:$(META_JSON) --output $(XCLBIN_FILE)
+#	$(PYTHON) $(META_GEN) -config $(VIV_CONFIG) -pdi $(VIV_PDI) -ulp $(ULP_CONFIG) -o $(META_JSON)
+	$(XUTIL) --input $(BINARY_CONTAINER) --output $(XCLBIN_FILE)
+#--add-section PARTITION_METADATA:JSON:$(META_JSON)
 	-@$(RM) $(BINARY_CONTAINER)
 
 $(BINARY_CONTAINER): $(XSA_FILE)
 $(XSA_FILE): $(KERNEL_XO)
 	$(VPP) $(VPP_LINK_FLAGS) -o $@ $(+)
-	-@$(RM) .Xill
+	-@$(RM) .Xil
 
 .PHONY: deb
 deb: $(DEB_FILE)
@@ -108,7 +109,5 @@ clean:
 	-$(RM) ./_x.*
 	-$(RM) *.link_summary* *.package_summary* *.ltx
 	-$(RM) $(BUILD_DIR) $(DEB_FILE)
-	-@$(RM) $(META_JSON) *data.txt
-
-
+	-$(RM) $(META_JSON) *data.txt
 
