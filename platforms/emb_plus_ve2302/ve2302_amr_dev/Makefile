@@ -7,10 +7,6 @@ JOBS ?= 8
 VIV_PRJ_DIR = project
 VIV_SCRIPTS_DIR = scripts
 
-PLATFORM_JSON = ./platform.json
-META_JSON =  $(VIV_PRJ_DIR)/partition_metadata.json
-META_PY = $(VIV_SCRIPTS_DIR)/partition_metadata_gen_script.py
-
 VIV_TIMING_ERROR = "CRITICAL WARNING: \[Timing 38-282\] The design failed to meet the timing requirements"
 VIV_DESIGN = ve2302_amr_dev
 VIV_XSA = $(VIV_PRJ_DIR)/$(VIV_DESIGN).xsa
