@@ -1,4 +1,4 @@
-# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2025 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 ################################################################
@@ -518,10 +518,10 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.enable_code {0000} \
     CONFIG.enable_dvsec {FALSE} \
     CONFIG.enable_gen4 {true} \
-    CONFIG.enable_gtwizard {false} \
     CONFIG.enable_ibert {false} \
     CONFIG.enable_jtag_dbg {false} \
     CONFIG.enable_more_clk {false} \
+    CONFIG.enable_gtwizard {false} \
     CONFIG.ext_pcie_cfg_space_enabled {false} \
     CONFIG.ext_xvc_vsec_enable {false} \
     CONFIG.extended_tag_field {false} \
@@ -604,6 +604,7 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.async_mode {SRNS} \
     CONFIG.disable_double_pipe {YES} \
     CONFIG.en_gt_pclk {false} \
+    CONFIG.enable_gtwizard {false} \
     CONFIG.ins_loss_profile {Add-in_Card} \
     CONFIG.lane_order {Bottom} \
     CONFIG.lane_reversal {false} \

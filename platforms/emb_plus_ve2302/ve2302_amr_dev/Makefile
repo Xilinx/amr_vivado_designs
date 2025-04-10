@@ -1,4 +1,4 @@
-# Copyright (C) 2023 - 2025, Advanced Micro Devices, Inc.
+# Copyright (C) 2025, Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 RM = rm -rf
