@@ -13,7 +13,7 @@ resize_pblock [get_pblocks pblock_ulp] -add {DSP_X0Y83:DSP_X1Y93 DSP_X0Y66:DSP_X
 resize_pblock [get_pblocks pblock_ulp] -add {GCLK_PD_X2Y96:GCLK_PD_X2Y143}
 resize_pblock [get_pblocks pblock_ulp] -add {IRI_QUAD_X18Y524:IRI_QUAD_X66Y779 IRI_QUAD_X17Y556:IRI_QUAD_X17Y779 IRI_QUAD_X9Y524:IRI_QUAD_X10Y779}
 resize_pblock [get_pblocks pblock_ulp] -add {MMCM_X2Y0:MMCM_X3Y0}
-resize_pblock [get_pblocks pblock_ulp] -add {NOC_NMU512_X0Y2:NOC_NMU512_X0Y4}
+resize_pblock [get_pblocks pblock_ulp] -add {NOC_NMU512_X0Y3:NOC_NMU512_X0Y4}
 resize_pblock [get_pblocks pblock_ulp] -add {RAMB18_X0Y84:RAMB18_X2Y95}
 resize_pblock [get_pblocks pblock_ulp] -add {RAMB36_X0Y42:RAMB36_X2Y47}
 resize_pblock [get_pblocks pblock_ulp] -add {URAM288_X0Y42:URAM288_X2Y47}
@@ -35,3 +35,4 @@ set_property DONT_TOUCH true [get_cells */ulp]
 # Lock NMU512 for blp
 set_property LOC NOC_NMU512_X0Y0 [get_cells */blp/axi_noc_ic/inst/S00_AXI_nmu/*/NOC_NMU512_INST]
 set_property LOC NOC_NMU512_X0Y1 [get_cells */blp/axi_noc_ic/inst/S07_AXI_nmu/*/NOC_NMU512_INST]
+set_property LOC NOC_NMU512_X0Y2 [get_cells */blp/axi_noc_ic/inst/S08_AXI_nmu/*/NOC_NMU512_INST]

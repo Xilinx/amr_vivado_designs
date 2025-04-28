@@ -825,9 +825,9 @@ set_property -dict [list \
   CONFIG.CH1_LPDDR4_0_BOARD_INTERFACE {Custom} \
   CONFIG.NUM_CLKS {9} \
   CONFIG.NUM_MC {0} \
-  CONFIG.NUM_MI {1} \
+  CONFIG.NUM_MI {2} \
   CONFIG.NUM_NMI {7} \
-  CONFIG.NUM_SI {8} \
+  CONFIG.NUM_SI {9} \
   CONFIG.sys_clk0_BOARD_INTERFACE {Custom} \
 ] [get_bd_cells axi_noc_ic]
 
@@ -839,6 +839,7 @@ set_property -dict [list CONFIG.CONNECTIONS {M00_INI {read_bw {800} write_bw {80
 set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M04_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S05_AXI]
 set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S06_AXI]
 set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /blp/axi_noc_ic/S07_AXI]
+set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /blp/axi_noc_ic/S08_AXI]
 set_property -dict [list CONFIG.ASSOCIATED_BUSIF {M01_AXI}] [get_bd_pins /blp/axi_noc_ic/aclk7]
 
 # Make the connections
@@ -885,6 +886,12 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
    CONFIG.APERTURES {{0x201_0000_0000 2G}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /blp/axi_noc_ic/M00_AXI]
+
+  set_property -dict [ list \
+   CONFIG.DATA_WIDTH {32} \
+   CONFIG.APERTURES {{0x202_0000_0000 2G}} \
+   CONFIG.CATEGORY {pl} \
+ ] [get_bd_intf_pins /blp/axi_noc_ic/M01_AXI]
 
   set_property -dict [ list \
    CONFIG.DATA_WIDTH {128} \
@@ -957,6 +964,13 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
  ] [get_bd_intf_pins /blp/axi_noc_ic/S07_AXI]
 
   set_property -dict [ list \
+   CONFIG.CONNECTIONS {M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+   CONFIG.DEST_IDS {M01_AXI:0x40} \
+   CONFIG.NOC_PARAMS {} \
+   CONFIG.CATEGORY {pl} \
+ ] [get_bd_intf_pins /blp/axi_noc_ic/S08_AXI]
+
+  set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {S00_AXI} \
  ] [get_bd_pins /blp/axi_noc_ic/aclk0]
 
@@ -989,7 +1003,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
  ] [get_bd_pins /blp/axi_noc_ic/aclk7]
 
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {M00_AXI:S06_AXI:S07_AXI} \
+   CONFIG.ASSOCIATED_BUSIF {M00_AXI:S06_AXI:S07_AXI:S08_AXI} \
  ] [get_bd_pins /blp/axi_noc_ic/aclk8]
 
   set_property -dict [ list \
@@ -1087,6 +1101,15 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.NUM_SI {1} \
   ] $xdma_0_smc
 
+  # Create instance: xdma_0_smc_1, and set properties
+  set xdma_0_smc_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect xdma_0_smc_1 ]
+  set_property -dict [list \
+    CONFIG.ADVANCED_PROPERTIES {__view__ { functional { S00_Entry { SUPPORTS_WRAP 0 } } timing { S00_Entry { MMU_REGSLICE 0 TR_REGSLICE 0 } M00_Exit { REGSLICE 0 } } }   } \
+    CONFIG.NUM_CLKS {1} \
+    CONFIG.NUM_MI {1} \
+    CONFIG.NUM_SI {1} \
+  ] $xdma_0_smc_1
+
 
   # Create instance: xdma_0_support
   create_hier_cell_xdma_0_support [current_bd_instance .] xdma_0_support
@@ -1116,9 +1139,14 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   ] $pf0_remapper_prot_conv
 
 # GPIO to test PF0 axi_lite + remapper
-  # Create instance: axi_gpio_0, and set properties
-  set axi_test_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_test_gpio ]
-  set_property CONFIG.C_DOUT_DEFAULT {0x000000F0} $axi_test_gpio
+  # Create instance: axi_test_gpio_pf0, and set properties
+  set axi_test_gpio_pf0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_test_gpio_pf0 ]
+  set_property CONFIG.C_DOUT_DEFAULT {0x000000F0} $axi_test_gpio_pf0
+
+# GPIO to test PF1 axi_bypass
+  # Create instance: axi_test_gpio_pf1, and set properties
+  set axi_test_gpio_pf1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_test_gpio_pf1 ]
+  set_property CONFIG.C_DOUT_DEFAULT {0x000000F1} $axi_test_gpio_pf1
 
   # Create interface connections
   connect_bd_intf_net -intf_net axi_noc_ic_M00_AXI [get_bd_intf_pins axi_noc_ic/M00_AXI] [get_bd_intf_pins xdma_0_smc/S00_AXI]
@@ -1137,7 +1165,6 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_intf_net -intf_net xdma_0_s_axis_rq [get_bd_intf_pins xdma_0/s_axis_rq] [get_bd_intf_pins xdma_0_support/s_axis_rq]
   connect_bd_intf_net -intf_net xdma_0_smc_M00_AXI [get_bd_intf_pins xdma_0_smc/M00_AXI] [get_bd_intf_pins xdma_0/S_AXI_B]
   connect_bd_intf_net -intf_net xdma_0_smc_M01_AXI [get_bd_intf_pins xdma_0_smc/M01_AXI] [get_bd_intf_pins blp_logic/s_axi_mgmt_ctrl]
-  connect_bd_intf_net -intf_net xdma_0_smc_M02_AXI [get_bd_intf_pins xdma_0_smc/M02_AXI] [get_bd_intf_pins axi_test_gpio/S_AXI]
   connect_bd_intf_net -intf_net xdma_0_support_m_axis_cq [get_bd_intf_pins xdma_0/m_axis_cq] [get_bd_intf_pins xdma_0_support/m_axis_cq]
   connect_bd_intf_net -intf_net xdma_0_support_m_axis_rc [get_bd_intf_pins xdma_0/m_axis_rc] [get_bd_intf_pins xdma_0_support/m_axis_rc]
   connect_bd_intf_net -intf_net xdma_0_support_pcie_cfg_fc [get_bd_intf_pins xdma_0/pcie_cfg_fc] [get_bd_intf_pins xdma_0_support/pcie_cfg_fc]
@@ -1149,7 +1176,10 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_intf_net -intf_net xdma_0_M_AXI_LITE [get_bd_intf_pins xdma_0/M_AXI_LITE] [get_bd_intf_pins pf0_remapper/s_axi]
   connect_bd_intf_net -intf_net pf0_remapper_m_axi [get_bd_intf_pins pf0_remapper_prot_conv/S00_AXI] [get_bd_intf_pins pf0_remapper/m_axi]
   connect_bd_intf_net -intf_net pf0_remapper_prot_conv_M00_AXI [get_bd_intf_pins pf0_remapper_prot_conv/M00_AXI] [get_bd_intf_pins axi_noc_ic/S07_AXI]
-
+  connect_bd_intf_net -intf_net xdma_0_smc_M02_AXI [get_bd_intf_pins xdma_0_smc/M02_AXI] [get_bd_intf_pins axi_test_gpio_pf0/S_AXI]
+  connect_bd_intf_net -intf_net xdma_0_M_AXI_BYPASS [get_bd_intf_pins xdma_0/M_AXI_BYPASS] [get_bd_intf_pins axi_noc_ic/S08_AXI]
+  connect_bd_intf_net -intf_net xdma_0_smc_1_M00_AXI [get_bd_intf_pins xdma_0_smc_1/M00_AXI] [get_bd_intf_pins axi_test_gpio_pf1/S_AXI]
+  connect_bd_intf_net -intf_net axi_noc_ic_M01_AXI [get_bd_intf_pins axi_noc_ic/M01_AXI] [get_bd_intf_pins xdma_0_smc_1/S00_AXI]
   # Create port connections
   connect_bd_net -net blp_logic_force_reset_enable  [get_bd_pins blp_logic/force_reset_enable] \
   [get_bd_pins force_reset_concat_0/In0]
@@ -1177,7 +1207,9 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   [get_bd_pins pf0_remapper/s_axi_aclk] \
   [get_bd_pins pf0_remapper/m_axi_aclk] \
   [get_bd_pins pf0_remapper_prot_conv/aclk] \
-  [get_bd_pins axi_test_gpio/s_axi_aclk]
+  [get_bd_pins xdma_0_smc_1/aclk] \
+  [get_bd_pins axi_test_gpio_pf0/s_axi_aclk] \
+  [get_bd_pins axi_test_gpio_pf1/s_axi_aclk]
   connect_bd_net -net xdma_0_support_phy_rdy_out  [get_bd_pins xdma_0_support/phy_rdy_out] \
   [get_bd_pins xdma_0/phy_rdy_out_sd]
   connect_bd_net -net xdma_0_support_user_lnk_up  [get_bd_pins xdma_0_support/user_lnk_up] \
@@ -1187,16 +1219,19 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_net -net xdma_axi_aresetn  [get_bd_pins xdma_0/axi_aresetn] \
   [get_bd_pins force_reset_not_0/Op1] \
   [get_bd_pins xdma_0_smc/aresetn] \
+  [get_bd_pins xdma_0_smc_1/aresetn] \
   [get_bd_pins pf0_remapper/s_axi_aresetn] \
   [get_bd_pins pf0_remapper/m_axi_aresetn] \
   [get_bd_pins pf0_remapper_prot_conv/aresetn] \
-  [get_bd_pins axi_test_gpio/s_axi_aresetn]
+  [get_bd_pins axi_test_gpio_pf0/s_axi_aresetn] \
+  [get_bd_pins axi_test_gpio_pf1/s_axi_aresetn]
   connect_bd_net -net xdma_pcie_user_clk  [get_bd_pins xdma_0_support/user_clk] \
   [get_bd_pins blp_logic/clk_pcie] \
   [get_bd_pins axi_noc_ic/aclk6] \
   [get_bd_pins xdma_0/user_clk_sd] \
   [get_bd_pins axi_sc_lpd/aclk1]
-  connect_bd_net -net axi_test_gpio_gpio_io_o  [get_bd_pins axi_test_gpio/gpio_io_o] [get_bd_pins axi_test_gpio/gpio_io_i]
+  connect_bd_net -net axi_test_gpio_pf0_io_o  [get_bd_pins axi_test_gpio_pf0/gpio_io_o] [get_bd_pins axi_test_gpio_pf0/gpio_io_i]
+  connect_bd_net -net axi_test_gpio_pf1_io_o  [get_bd_pins axi_test_gpio_pf1/gpio_io_o] [get_bd_pins axi_test_gpio_pf1/gpio_io_i]
 
   # Restore current instance
   current_bd_instance $oldCurInst
@@ -1283,10 +1318,11 @@ proc create_root_design { parentCell} {
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x050000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_CH1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_LOW0] -force
+  assign_bd_address -offset 0x00000000 -range 0x000000800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/pf0_remapper/s_axi/reg0] -force
   assign_bd_address -offset 0x020100004000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
   assign_bd_address -offset 0x020100000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0] -force
-  assign_bd_address -offset 0x020100010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/axi_test_gpio/S_AXI/Reg] -force
-  assign_bd_address -offset 0x00000000 -range 0x000000800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/pf0_remapper/s_axi/reg0] -force
+  assign_bd_address -offset 0x020100010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x020200010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces /blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_test_gpio_pf1/S_AXI/Reg] -force
 
   # Exclude Address Segments
   exclude_bd_addr_seg -offset 0x050000000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces blp/cips/LPD_AXI_NOC_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_CH1]
