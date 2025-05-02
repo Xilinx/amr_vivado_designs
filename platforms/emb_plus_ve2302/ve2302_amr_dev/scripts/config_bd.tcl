@@ -120,7 +120,9 @@ xilinx.com:ip:xlconstant:*\
 xilinx.com:ip:gt_quad_base:*\
 xilinx.com:ip:pcie_versal:*\
 xilinx.com:ip:pcie_phy_versal:*\
+xilinx.com:inline_hdl:ilconstant:*\
 xilinx.com:ip:util_ds_buf:*\
+xilinx.com:ip:uuid_register:*\
 xilinx.com:ip:pfm_irq_ctlr:*\
 xilinx.com:ip:axi_gpio:*\
 xilinx.com:ip:proc_sys_reset:*\
@@ -201,6 +203,7 @@ proc create_hier_cell_base_clocking { parentCell nameHier } {
   create_bd_pin -dir O -from 0 -to 0 -type rst resetn_pl_axi_sync
   create_bd_pin -dir O -from 0 -to 0 force_reset_enable
   create_bd_pin -dir I force_reset_result
+  create_bd_pin -dir O -from 0 -to 0 -type rst peripheral_aresetn
 
   # Create instance: force_reset_gpio, and set properties
   set force_reset_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio force_reset_gpio ]
@@ -248,6 +251,8 @@ proc create_hier_cell_base_clocking { parentCell nameHier } {
   connect_bd_net -net pl_reset_sync_interconnect_aresetn  [get_bd_pins pl_reset_sync/interconnect_aresetn] \
   [get_bd_pins resetn_pl_axi_sync] \
   [get_bd_pins force_reset_gpio/s_axi_aresetn]
+  connect_bd_net -net pl_reset_sync_peripheral_aresetn  [get_bd_pins pl_reset_sync/peripheral_aresetn] \
+  [get_bd_pins peripheral_aresetn]
   connect_bd_net -net resetn_pcie_1  [get_bd_pins resetn_pcie] \
   [get_bd_pins pcie_reset_sync/ext_reset_in]
   connect_bd_net -net resetn_pl_axi_1  [get_bd_pins resetn_pl_axi] \
@@ -296,6 +301,10 @@ proc create_hier_cell_blp_logic { parentCell nameHier } {
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_pfm_irq
 
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_uuid_lpd
+
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 s_axi_uuid_pcie
+
 
   # Create pins
   create_bd_pin -dir I -type clk clk_pcie
@@ -336,18 +345,26 @@ proc create_hier_cell_blp_logic { parentCell nameHier } {
   ] $pfm_irq_ctlr
 
 
+  # Create instance: uuid_register, and set properties
+  set uuid_register [ create_bd_cell -type ip -vlnv xilinx.com:ip:uuid_register uuid_register ]
+
   # Create interface connections
   connect_bd_intf_net -intf_net Conn1 [get_bd_intf_pins s_axi_pfm_irq] [get_bd_intf_pins pfm_irq_ctlr/S_AXI]
+  connect_bd_intf_net -intf_net Conn2 [get_bd_intf_pins uuid_register/S0_AXI] [get_bd_intf_pins s_axi_uuid_lpd]
+  connect_bd_intf_net -intf_net Conn3 [get_bd_intf_pins uuid_register/S1_AXI] [get_bd_intf_pins s_axi_uuid_pcie]
   connect_bd_intf_net -intf_net base_clocking_s_axi_swctrl_reset_cntl [get_bd_intf_pins s_axi_mgmt_ctrl] [get_bd_intf_pins base_clocking/s_axi_swctrl_reset_cntl]
 
   # Create port connections
   connect_bd_net -net base_clocking_force_reset_enable  [get_bd_pins base_clocking/force_reset_enable] \
   [get_bd_pins force_reset_enable]
+  connect_bd_net -net base_clocking_peripheral_aresetn  [get_bd_pins base_clocking/peripheral_aresetn] \
+  [get_bd_pins uuid_register/S_AXI_ARESETN]
   connect_bd_net -net clk_pcie_net  [get_bd_pins clk_pcie] \
   [get_bd_pins base_clocking/clk_pcie] \
   [get_bd_pins pfm_irq_ctlr/aclk]
   connect_bd_net -net clk_pl_axi_net  [get_bd_pins clk_pl_axi] \
-  [get_bd_pins base_clocking/clk_pl_axi]
+  [get_bd_pins base_clocking/clk_pl_axi] \
+  [get_bd_pins uuid_register/S_AXI_ACLK]
   connect_bd_net -net force_reset_result_1  [get_bd_pins force_reset_result] \
   [get_bd_pins base_clocking/force_reset_result]
   connect_bd_net -net irq_const_dout  [get_bd_pins irq_const/dout] \
@@ -606,10 +623,9 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.sim_model {NO} \
     CONFIG.tx_preset {4} \
   ] $pcie_phy
+
   # Create instance: const_1b1, and set properties
   set const_1b1 [ create_bd_cell -type inline_hdl -vlnv xilinx.com:inline_hdl:ilconstant const_1b1 ]
-
-
 
   # Create instance: bufg_gt_sysclk, and set properties
   set bufg_gt_sysclk [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf bufg_gt_sysclk ]
@@ -662,7 +678,7 @@ refclk_PROT0_R0_100_MHz_unique1} \
   connect_bd_net -net bufg_gt_sysclk_BUFG_GT_O  [get_bd_pins bufg_gt_sysclk/BUFG_GT_O] \
   [get_bd_pins pcie_phy/phy_refclk] \
   [get_bd_pins gt_quad_0/apb3clk] \
-  [get_bd_pins pcie/sys_clk] 
+  [get_bd_pins pcie/sys_clk]
   connect_bd_net -net const_1b1_dout  [get_bd_pins const_1b1/dout] \
   [get_bd_pins bufg_gt_sysclk/BUFG_GT_CE]
   connect_bd_net -net gt_quad_0_ch0_phyready  [get_bd_pins gt_quad_0/ch0_phyready] \
@@ -831,16 +847,21 @@ set_property -dict [list \
   CONFIG.sys_clk0_BOARD_INTERFACE {Custom} \
 ] [get_bd_cells axi_noc_ic]
 
-set_property -dict [list CONFIG.CONNECTIONS {M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S00_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M01_INI {read_bw {800} write_bw {800}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}}}] [get_bd_intf_pins /blp/axi_noc_ic/S01_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M02_INI {read_bw {800} write_bw {800}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}}}] [get_bd_intf_pins /blp/axi_noc_ic/S02_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M03_INI {read_bw {800} write_bw {800}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}}}] [get_bd_intf_pins /blp/axi_noc_ic/S03_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S04_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M04_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S05_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S06_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /blp/axi_noc_ic/S07_AXI]
-set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /blp/axi_noc_ic/S08_AXI]
-set_property -dict [list CONFIG.ASSOCIATED_BUSIF {M01_AXI}] [get_bd_pins /blp/axi_noc_ic/aclk7]
+#set_property -dict [list CONFIG.CONNECTIONS {M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M00_INI {read_bw {800} write_bw {800} initial_boot {false}}}] [get_bd_intf_pins /blp/axi_noc_ic/S05_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S00_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M01_INI {read_bw {800} write_bw {800}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}}}] [get_bd_intf_pins /blp/axi_noc_ic/S01_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M02_INI {read_bw {800} write_bw {800}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}}}] [get_bd_intf_pins /blp/axi_noc_ic/S02_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M03_INI {read_bw {800} write_bw {800}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M04_INI {read_bw {500} write_bw {500}}}] [get_bd_intf_pins /blp/axi_noc_ic/S03_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S04_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M04_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S05_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M00_INI {read_bw {800} write_bw {800}}}] [get_bd_intf_pins /blp/axi_noc_ic/S06_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /blp/axi_noc_ic/S07_AXI]
+#set_property -dict [list CONFIG.CONNECTIONS {M06_INI {read_bw {500} write_bw {500}} M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}}] [get_bd_intf_pins /blp/axi_noc_ic/S08_AXI]
+#set_property -dict [list CONFIG.ASSOCIATED_BUSIF {M01_AXI}] [get_bd_pins /blp/axi_noc_ic/aclk7]
+#
+## Remapping
+#set_property -dict [list CONFIG.REMAPS {M00_AXI {{0x0 0x201_0000_0000 128k}}}] [get_bd_intf_pins /blp/axi_noc_ic/S07_AXI]
+#set_property -dict [list CONFIG.REMAPS {M01_AXI {{0x00 0x202_0000_0000 128M}}}] [get_bd_intf_pins /blp/axi_noc_ic/S08_AXI]
 
 # Make the connections
 connect_bd_intf_net [get_bd_intf_pins lpddr4_clk1] [get_bd_intf_pins axi_noc_mc_1x/sys_clk0]
@@ -882,7 +903,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
 
 
   set_property -dict [ list \
-   CONFIG.DATA_WIDTH {32} \
+   CONFIG.DATA_WIDTH {256} \
    CONFIG.APERTURES {{0x201_0000_0000 2G}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /blp/axi_noc_ic/M00_AXI]
@@ -942,7 +963,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
    CONFIG.DATA_WIDTH {128} \
    CONFIG.REGION {0} \
    CONFIG.CONNECTIONS {M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M00_INI {read_bw {800} write_bw {800}}} \
-   CONFIG.DEST_IDS {M00_AXI:0x40} \
+   CONFIG.DEST_IDS {M00_AXI:0x100} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_pmc} \
  ] [get_bd_intf_pins /blp/axi_noc_ic/S05_AXI]
@@ -957,15 +978,17 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
  ] [get_bd_intf_pins /blp/axi_noc_ic/S06_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
-   CONFIG.DEST_IDS {M00_AXI:0x40} \
+   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+   CONFIG.DEST_IDS {M00_AXI:0x100} \
+   CONFIG.REMAPS {M02_INI {{0x0080_0000 0x1000_0000 8M}} M00_AXI {{0x000_0000 0x201_0000_0000 8M}}} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /blp/axi_noc_ic/S07_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
-   CONFIG.DEST_IDS {M01_AXI:0x40} \
+   CONFIG.CONNECTIONS {M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}} M03_INI {read_bw {500} write_bw {500}}} \
+   CONFIG.DEST_IDS {M01_AXI:0x80} \
+   CONFIG.REMAPS {M03_INI {{0x0800_0000 0x0500_0000_0000 128M}} M01_AXI {{0x0 0x202_0000_0000 8M}}} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /blp/axi_noc_ic/S08_AXI]
@@ -1003,7 +1026,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
  ] [get_bd_pins /blp/axi_noc_ic/aclk7]
 
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {M00_AXI:S06_AXI:S07_AXI:S08_AXI} \
+   CONFIG.ASSOCIATED_BUSIF {M00_AXI:M01_AXI:S06_AXI:S07_AXI:S08_AXI} \
  ] [get_bd_pins /blp/axi_noc_ic/aclk8]
 
   set_property -dict [ list \
@@ -1021,6 +1044,25 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   set_property -dict [ list \
    CONFIG.CONNECTIONS {MC_3 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
  ] [get_bd_intf_pins /blp/axi_noc_mc_1x/S03_INI]
+
+  set_property -dict [ list \
+   CONFIG.INI_STRATEGY {load} \
+   CONFIG.CONNECTIONS {MC_1 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+ ] [get_bd_intf_pins /blp/axi_noc_mc_1x/S04_INI]
+
+  set_property -dict [ list \
+   CONFIG.INI_STRATEGY {load} \
+   CONFIG.CONNECTIONS {MC_2 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+ ] [get_bd_intf_pins /blp/axi_noc_mc_1x/S05_INI]
+
+  set_property -dict [ list \
+   CONFIG.INI_STRATEGY {load} \
+   CONFIG.CONNECTIONS {MC_3 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+ ] [get_bd_intf_pins /blp/axi_noc_mc_1x/S06_INI]
+
+  set_property -dict [ list \
+   CONFIG.CONNECTIONS {MC_0 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+ ] [get_bd_intf_pins /blp/axi_noc_mc_1x/S07_INI]
 
   # Create instance: force_reset_concat_0, and set properties
   set force_reset_concat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat force_reset_concat_0 ]
@@ -1041,12 +1083,13 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   # Create instance: xdma_0, and set properties
   set xdma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xdma xdma_0 ]
     set_property -dict [list \
-    CONFIG.axi_bypass_64bit_en {true} \
-    CONFIG.axi_bypass_prefetchable {true} \
+    CONFIG.axi_bypass_64bit_en {false} \
+    CONFIG.axi_bypass_prefetchable {false} \
     CONFIG.axi_data_width {256_bit} \
-    CONFIG.axil_master_prefetchable {true} \
-    CONFIG.axilite_master_size {8} \
-    CONFIG.axist_bypass_size {128} \
+    CONFIG.axil_master_prefetchable {false} \
+    CONFIG.axil_master_64bit_en {false} \
+    CONFIG.axilite_master_size {16} \
+    CONFIG.axist_bypass_size {256} \
     CONFIG.cfg_mgmt_if {false} \
     CONFIG.enable_gtwizard {false} \
     CONFIG.mode_selection {Advanced} \
@@ -1061,19 +1104,10 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.pf0_msix_enabled {true} \
     CONFIG.pf0_sub_class_interface_menu {Other_memory_controller} \
     CONFIG.pf0_subsystem_id {000e} \
-    CONFIG.pf1_bar0_64bit {true} \
-    CONFIG.pf1_bar0_prefetchable {true} \
+    CONFIG.pf1_bar0_64bit {false} \
+    CONFIG.pf1_bar0_prefetchable {false} \
     CONFIG.pf1_bar0_scale {Megabytes} \
-    CONFIG.pf1_bar0_size {8} \
-    CONFIG.pf1_bar2_64bit {true} \
-    CONFIG.pf1_bar2_prefetchable {true} \
-    CONFIG.pf1_bar2_scale {Kilobytes} \
-    CONFIG.pf1_bar2_size {64} \
-    CONFIG.pf1_bar2_type {Memory} \
-    CONFIG.pf1_bar4_64bit {true} \
-    CONFIG.pf1_bar4_prefetchable {true} \
-    CONFIG.pf1_bar4_scale {Megabytes} \
-    CONFIG.pf1_bar4_size {128} \
+    CONFIG.pf1_bar0_size {16} \
     CONFIG.pf1_base_class_menu {Memory_controller} \
     CONFIG.pf1_class_code_base {12} \
     CONFIG.pf1_class_code_sub {00} \
@@ -1085,8 +1119,8 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.pl_link_cap_max_link_width {X4} \
     CONFIG.tl_pf_enable_reg {2} \
     CONFIG.xdma_num_usr_irq {16} \
-    CONFIG.xdma_pcie_64bit_en {true} \
-    CONFIG.xdma_pcie_prefetchable {true} \
+    CONFIG.xdma_pcie_64bit_en {false} \
+    CONFIG.xdma_pcie_prefetchable {false} \
     CONFIG.xdma_rnum_chnl {2} \
     CONFIG.xdma_wnum_chnl {2} \
   ] $xdma_0
@@ -1097,7 +1131,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   set_property -dict [list \
     CONFIG.ADVANCED_PROPERTIES {__view__ { functional { S00_Entry { SUPPORTS_WRAP 0 } } timing { M01_Exit { REGSLICE 0 } S00_Entry { MMU_REGSLICE 0 TR_REGSLICE 0 } M00_Exit { REGSLICE 0 } } }   } \
     CONFIG.NUM_CLKS {2} \
-    CONFIG.NUM_MI {3} \
+    CONFIG.NUM_MI {4} \
     CONFIG.NUM_SI {1} \
   ] $xdma_0_smc
 
@@ -1121,16 +1155,9 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   set axi_sc_lpd [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect axi_sc_lpd ]
   set_property -dict [list \
     CONFIG.NUM_CLKS {2} \
+    CONFIG.NUM_MI {2} \
     CONFIG.NUM_SI {1} \
   ] $axi_sc_lpd
-
-# Remapper hack until NOC remapping sorted out https://jira.xilinx.com/browse/CR-1238339
-  # Create instance: axi_addr_remap_0, and set properties
-  set pf0_remapper [ create_bd_cell -type ip -vlnv user.org:user:axi_addr_remap pf0_remapper ]
-  set_property -dict [list \
-    CONFIG.M_AXI_ADDR_WIDTH {64} \
-    CONFIG.TRANS_ADDR {0x0000020100000000} \
-  ] $pf0_remapper
 
   # Create instance: pf0_remapper_prot_conv, and set properties
   set pf0_remapper_prot_conv [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect pf0_remapper_prot_conv]
@@ -1151,20 +1178,28 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   # Create interface connections
   connect_bd_intf_net -intf_net axi_noc_ic_M00_AXI [get_bd_intf_pins axi_noc_ic/M00_AXI] [get_bd_intf_pins xdma_0_smc/S00_AXI]
   connect_bd_intf_net -intf_net axi_noc_ic_M00_INI [get_bd_intf_pins axi_noc_ic/M00_INI] [get_bd_intf_pins axi_noc_mc_1x/S00_INI]
+  connect_bd_intf_net -intf_net axi_noc_ic_M01_AXI [get_bd_intf_pins axi_noc_ic/M01_AXI] [get_bd_intf_pins xdma_0_smc_1/S00_AXI]
   connect_bd_intf_net -intf_net axi_noc_ic_M01_INI [get_bd_intf_pins axi_noc_ic/M01_INI] [get_bd_intf_pins axi_noc_mc_1x/S01_INI]
   connect_bd_intf_net -intf_net axi_noc_ic_M02_INI [get_bd_intf_pins axi_noc_ic/M02_INI] [get_bd_intf_pins axi_noc_mc_1x/S02_INI]
   connect_bd_intf_net -intf_net axi_noc_ic_M03_INI [get_bd_intf_pins axi_noc_ic/M03_INI] [get_bd_intf_pins axi_noc_mc_1x/S03_INI]
   connect_bd_intf_net -intf_net axi_sc_lpd_M00_AXI [get_bd_intf_pins axi_sc_lpd/M00_AXI] [get_bd_intf_pins blp_logic/s_axi_pfm_irq]
+  connect_bd_intf_net -intf_net axi_sc_lpd_M01_AXI [get_bd_intf_pins axi_sc_lpd/M01_AXI] [get_bd_intf_pins blp_logic/s_axi_uuid_lpd]
   connect_bd_intf_net -intf_net cips_M_AXI_LPD [get_bd_intf_pins cips/M_AXI_LPD] [get_bd_intf_pins axi_sc_lpd/S00_AXI]
   connect_bd_intf_net -intf_net pcie_refclk [get_bd_intf_pins pcie_refclk] [get_bd_intf_pins xdma_0_support/pcie_refclk]
+  connect_bd_intf_net -intf_net pf0_remapper_prot_conv_M00_AXI [get_bd_intf_pins pf0_remapper_prot_conv/M00_AXI] [get_bd_intf_pins axi_noc_ic/S07_AXI]
   connect_bd_intf_net -intf_net xdma_0_M_AXI [get_bd_intf_pins xdma_0/M_AXI] [get_bd_intf_pins axi_noc_ic/S06_AXI]
+  connect_bd_intf_net -intf_net xdma_0_M_AXI_BYPASS [get_bd_intf_pins xdma_0/M_AXI_BYPASS] [get_bd_intf_pins axi_noc_ic/S08_AXI]
+  connect_bd_intf_net -intf_net xdma_0_M_AXI_LITE [get_bd_intf_pins xdma_0/M_AXI_LITE] [get_bd_intf_pins pf0_remapper_prot_conv/S00_AXI]
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_control_if [get_bd_intf_pins xdma_0/pcie_cfg_control_if] [get_bd_intf_pins xdma_0_support/pcie_cfg_control]
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_external_msix_without_msi_if [get_bd_intf_pins xdma_0/pcie4_cfg_external_msix_without_msi_if] [get_bd_intf_pins xdma_0_support/pcie_cfg_external_msix_without_msi]
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_interrupt [get_bd_intf_pins xdma_0/pcie4_cfg_interrupt] [get_bd_intf_pins xdma_0_support/pcie_cfg_interrupt]
   connect_bd_intf_net -intf_net xdma_0_s_axis_cc [get_bd_intf_pins xdma_0/s_axis_cc] [get_bd_intf_pins xdma_0_support/s_axis_cc]
   connect_bd_intf_net -intf_net xdma_0_s_axis_rq [get_bd_intf_pins xdma_0/s_axis_rq] [get_bd_intf_pins xdma_0_support/s_axis_rq]
+  connect_bd_intf_net -intf_net xdma_0_smc_1_M00_AXI [get_bd_intf_pins xdma_0_smc_1/M00_AXI] [get_bd_intf_pins axi_test_gpio_pf1/S_AXI]
   connect_bd_intf_net -intf_net xdma_0_smc_M00_AXI [get_bd_intf_pins xdma_0_smc/M00_AXI] [get_bd_intf_pins xdma_0/S_AXI_B]
   connect_bd_intf_net -intf_net xdma_0_smc_M01_AXI [get_bd_intf_pins xdma_0_smc/M01_AXI] [get_bd_intf_pins blp_logic/s_axi_mgmt_ctrl]
+  connect_bd_intf_net -intf_net xdma_0_smc_M02_AXI [get_bd_intf_pins xdma_0_smc/M02_AXI] [get_bd_intf_pins blp_logic/s_axi_uuid_pcie]
+  connect_bd_intf_net -intf_net xdma_0_smc_M03_AXI [get_bd_intf_pins xdma_0_smc/M03_AXI] [get_bd_intf_pins axi_test_gpio_pf0/S_AXI]
   connect_bd_intf_net -intf_net xdma_0_support_m_axis_cq [get_bd_intf_pins xdma_0/m_axis_cq] [get_bd_intf_pins xdma_0_support/m_axis_cq]
   connect_bd_intf_net -intf_net xdma_0_support_m_axis_rc [get_bd_intf_pins xdma_0/m_axis_rc] [get_bd_intf_pins xdma_0_support/m_axis_rc]
   connect_bd_intf_net -intf_net xdma_0_support_pcie_cfg_fc [get_bd_intf_pins xdma_0/pcie_cfg_fc] [get_bd_intf_pins xdma_0_support/pcie_cfg_fc]
@@ -1173,13 +1208,6 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_intf_net -intf_net xdma_0_support_pcie_cfg_status [get_bd_intf_pins xdma_0/pcie_cfg_status_if] [get_bd_intf_pins xdma_0_support/pcie_cfg_status]
   connect_bd_intf_net -intf_net xdma_0_support_pcie_mgt_gt_pciea0 [get_bd_intf_pins gt_pciea0] [get_bd_intf_pins xdma_0_support/pcie_mgt]
   connect_bd_intf_net -intf_net xdma_0_support_pcie_transmit_fc [get_bd_intf_pins xdma_0/pcie_transmit_fc] [get_bd_intf_pins xdma_0_support/pcie_transmit_fc]
-  connect_bd_intf_net -intf_net xdma_0_M_AXI_LITE [get_bd_intf_pins xdma_0/M_AXI_LITE] [get_bd_intf_pins pf0_remapper/s_axi]
-  connect_bd_intf_net -intf_net pf0_remapper_m_axi [get_bd_intf_pins pf0_remapper_prot_conv/S00_AXI] [get_bd_intf_pins pf0_remapper/m_axi]
-  connect_bd_intf_net -intf_net pf0_remapper_prot_conv_M00_AXI [get_bd_intf_pins pf0_remapper_prot_conv/M00_AXI] [get_bd_intf_pins axi_noc_ic/S07_AXI]
-  connect_bd_intf_net -intf_net xdma_0_smc_M02_AXI [get_bd_intf_pins xdma_0_smc/M02_AXI] [get_bd_intf_pins axi_test_gpio_pf0/S_AXI]
-  connect_bd_intf_net -intf_net xdma_0_M_AXI_BYPASS [get_bd_intf_pins xdma_0/M_AXI_BYPASS] [get_bd_intf_pins axi_noc_ic/S08_AXI]
-  connect_bd_intf_net -intf_net xdma_0_smc_1_M00_AXI [get_bd_intf_pins xdma_0_smc_1/M00_AXI] [get_bd_intf_pins axi_test_gpio_pf1/S_AXI]
-  connect_bd_intf_net -intf_net axi_noc_ic_M01_AXI [get_bd_intf_pins axi_noc_ic/M01_AXI] [get_bd_intf_pins xdma_0_smc_1/S00_AXI]
   # Create port connections
   connect_bd_net -net blp_logic_force_reset_enable  [get_bd_pins blp_logic/force_reset_enable] \
   [get_bd_pins force_reset_concat_0/In0]
@@ -1204,8 +1232,6 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_net -net xdma_0_pcie_noc_axi_clk  [get_bd_pins xdma_0/axi_aclk] \
   [get_bd_pins xdma_0_smc/aclk] \
   [get_bd_pins axi_noc_ic/aclk8] \
-  [get_bd_pins pf0_remapper/s_axi_aclk] \
-  [get_bd_pins pf0_remapper/m_axi_aclk] \
   [get_bd_pins pf0_remapper_prot_conv/aclk] \
   [get_bd_pins xdma_0_smc_1/aclk] \
   [get_bd_pins axi_test_gpio_pf0/s_axi_aclk] \
@@ -1220,8 +1246,6 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   [get_bd_pins force_reset_not_0/Op1] \
   [get_bd_pins xdma_0_smc/aresetn] \
   [get_bd_pins xdma_0_smc_1/aresetn] \
-  [get_bd_pins pf0_remapper/s_axi_aresetn] \
-  [get_bd_pins pf0_remapper/m_axi_aresetn] \
   [get_bd_pins pf0_remapper_prot_conv/aresetn] \
   [get_bd_pins axi_test_gpio_pf0/s_axi_aresetn] \
   [get_bd_pins axi_test_gpio_pf1/s_axi_aresetn]
@@ -1312,22 +1336,31 @@ proc create_root_design { parentCell} {
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/FPD_CCI_NOC_1] [get_bd_addr_segs blp/axi_noc_mc_1x/S01_INI/C1_DDR_LOW0] -force
   assign_bd_address -offset 0x050000000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces blp/cips/FPD_CCI_NOC_2] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C2_DDR_CH1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/FPD_CCI_NOC_2] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C2_DDR_LOW0] -force
+  assign_bd_address -offset 0x050000000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces blp/cips/FPD_CCI_NOC_3] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C3_DDR_CH1] -force
+  assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/FPD_CCI_NOC_3] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C3_DDR_LOW0] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/LPD_AXI_NOC_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x80044000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/cips/M_AXI_LPD] [get_bd_addr_segs blp/blp_logic/pfm_irq_ctlr/S_AXI/Reg] -force
+  assign_bd_address -offset 0x80000000 -range 0x00001000 -with_name SEG_uuid_register_0_reg0 -target_address_space [get_bd_addr_spaces blp/cips/M_AXI_LPD] [get_bd_addr_segs blp/blp_logic/uuid_register/S0_AXI/reg0] -force
   assign_bd_address -offset 0x050000000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_CH1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x050000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_CH1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_LOW0] -force
-  assign_bd_address -offset 0x00000000 -range 0x000000800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/pf0_remapper/s_axi/reg0] -force
-  assign_bd_address -offset 0x020100004000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
-  assign_bd_address -offset 0x020100000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0] -force
-  assign_bd_address -offset 0x020100010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/pf0_remapper/m_axi] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
-  assign_bd_address -offset 0x020200010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces /blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_test_gpio_pf1/S_AXI/Reg] -force
+  assign_bd_address -offset 0x08000000 -range 0x08000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C3_DDR_CH1] -force
+  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_test_gpio_pf1/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00800000 -range 0x00800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C2_DDR_LOW0] -force
+  assign_bd_address -offset 0x00010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0] -force
+  assign_bd_address -offset 0x00000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0] -force
 
   # Exclude Address Segments
-  exclude_bd_addr_seg -offset 0x050000000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces blp/cips/LPD_AXI_NOC_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_CH1]
-  exclude_bd_addr_seg -offset 0x020100004000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg]
-  exclude_bd_addr_seg -offset 0x020100000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/LPD_AXI_NOC_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C0_DDR_CH1]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C3_DDR_LOW0]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C2_DDR_CH1]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] 
 
 
   # Restore current instance
