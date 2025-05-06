@@ -12,7 +12,7 @@ set xdc_list {./xdc/impl.xdc ./xdc/pcie.xdc }
 set ip_repo_path {./ip}
 set jobs 8
 set part xcve2302-sfva784-2MP-e-S
-set proj_name ve2302_amr_dev
+set proj_name ve2302_xdma_base
 set proj_board [get_board_parts "*:emb-plus-vpr-4616:*" -latest_file_version]
 
 # parse arguments

@@ -9,7 +9,7 @@ VIV_PRJ_DIR = project
 VIV_SCRIPTS_DIR = scripts
 
 VIV_TIMING_ERROR = "CRITICAL WARNING: \[Timing 38-282\] The design failed to meet the timing requirements"
-VIV_DESIGN = ve2302_amr_dev
+VIV_DESIGN = ve2302_xdma_base
 VIV_XSA = $(VIV_PRJ_DIR)/$(VIV_DESIGN).xsa
 VIV_SRC = $(VIV_SCRIPTS_DIR)/main.tcl
 VIV_CONFIG = $(VIV_SCRIPTS_DIR)/config_bd.tcl
