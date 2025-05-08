@@ -1,38 +1,18 @@
+// Copyright (C) 2025 Advanced Micro Devices, Inc.
+// SPDX-License-Identifier: MIT
+
+// This implements a mask to the addresses on the s_axi interface
 
 `timescale 1 ns / 1 ps
 
 	module axi_addr_mask #
 	(
-		// Users to add parameters here
-
-		// User parameters ends
-		// Do not modify the parameters beyond this line
-
-
-		// Parameters of Axi Slave Bus Interface s_axi
 		parameter integer C_ID_WIDTH	= 1,
 		parameter integer C_DATA_WIDTH	= 32,
 		parameter integer C_ADDR_WIDTH	= 6,
 		parameter integer C_AWUSER_WIDTH	= 0,
 		parameter integer C_ARUSER_WIDTH	= 0,
-		// parameter integer C_WUSER_WIDTH	= 0,
-		// parameter integer C_RUSER_WIDTH	= 0,
-		// parameter integer C_BUSER_WIDTH	= 0,
-
-		// Parameters of Axi Master Bus Interface m_axi
-		// parameter integer M_AXI_BURST_LEN	= 16,
-		// parameter integer M_AXI_ID_WIDTH	= 1,
-		// parameter integer M_AXI_ADDR_WIDTH	= 32,
-		// parameter integer M_AXI_DATA_WIDTH	= 32,
-		// parameter integer M_AXI_AWUSER_WIDTH	= 0,
-		// parameter integer M_AXI_ARUSER_WIDTH	= 0,
-		// parameter integer M_AXI_WUSER_WIDTH	= 0,
-		// parameter integer M_AXI_RUSER_WIDTH	= 0,
-		// parameter integer M_AXI_BUSER_WIDTH	= 0,
-		
 		parameter [C_ADDR_WIDTH-1:0] S_ADDR_MASK = 64'hFFFFFFFFFFFFFFFF
-		// parameter [S_AXI_ADDR_WIDTH-1:0] REMAP_ADDR = 64'h00000000,
-		// parameter [M_AXI_ADDR_WIDTH-1:0] TRANS_ADDR = 64'h00000000
 	)
 	(
 		// Users to add ports here
@@ -60,12 +40,10 @@
 		input wire [C_DATA_WIDTH-1 : 0] s_axi_wdata,
 		input wire [(C_DATA_WIDTH/8)-1 : 0] s_axi_wstrb,
 		input wire  s_axi_wlast,
-		// input wire [S_AXI_WUSER_WIDTH-1 : 0] s_axi_wuser,
 		input wire  s_axi_wvalid,
 		output wire  s_axi_wready,
 		output wire [C_ID_WIDTH-1 : 0] s_axi_bid,
 		output wire [1 : 0] s_axi_bresp,
-		// output wire [S_AXI_BUSER_WIDTH-1 : 0] s_axi_buser,
 		output wire  s_axi_bvalid,
 		input wire  s_axi_bready,
 		input wire [C_ID_WIDTH-1 : 0] s_axi_arid,
@@ -85,7 +63,6 @@
 		output wire [C_DATA_WIDTH-1 : 0] s_axi_rdata,
 		output wire [1 : 0] s_axi_rresp,
 		output wire  s_axi_rlast,
-		// output wire [S_AXI_RUSER_WIDTH-1 : 0] s_axi_ruser,
 		output wire  s_axi_rvalid,
 		input wire  s_axi_rready,
 
@@ -105,12 +82,10 @@
 		output wire [C_DATA_WIDTH-1 : 0] m_axi_wdata,
 		output wire [C_DATA_WIDTH/8-1 : 0] m_axi_wstrb,
 		output wire  m_axi_wlast,
-		// output wire [M_AXI_WUSER_WIDTH-1 : 0] m_axi_wuser,
 		output wire  m_axi_wvalid,
 		input wire  m_axi_wready,
 		input wire [C_ID_WIDTH-1 : 0] m_axi_bid,
 		input wire [1 : 0] m_axi_bresp,
-		// input wire [M_AXI_BUSER_WIDTH-1 : 0] m_axi_buser,
 		input wire  m_axi_bvalid,
 		output wire  m_axi_bready,
 		output wire [C_ID_WIDTH-1 : 0] m_axi_arid,
@@ -129,7 +104,6 @@
 		input wire [C_DATA_WIDTH-1 : 0] m_axi_rdata,
 		input wire [1 : 0] m_axi_rresp,
 		input wire  m_axi_rlast,
-		// input wire [M_AXI_RUSER_WIDTH-1 : 0] m_axi_ruser,
 		input wire  m_axi_rvalid,
 		output wire  m_axi_rready
 	);
@@ -149,7 +123,6 @@ assign m_axi_awvalid	= s_axi_awvalid;
 assign m_axi_wdata		= s_axi_wdata;
 assign m_axi_wstrb		= s_axi_wstrb;
 assign m_axi_wlast		= s_axi_wlast;
-// assign m_axi_wuser		= s_axi_wuser;
 assign m_axi_wvalid	= s_axi_wvalid;
 assign m_axi_bready	= s_axi_bready;
 assign m_axi_arid		= s_axi_arid;
@@ -169,7 +142,6 @@ assign s_axi_awready	= m_axi_awready;
 assign s_axi_wready	= m_axi_wready;
 assign s_axi_bid		= m_axi_bid;
 assign s_axi_bresp		= m_axi_bresp;
-// assign s_axi_buser		= m_axi_buser;
 assign s_axi_bvalid	= m_axi_bvalid;
 assign s_axi_arready	= m_axi_arready;
 assign s_axi_rid		= m_axi_rid;
@@ -178,7 +150,6 @@ assign s_axi_rresp		= m_axi_rresp;
 assign s_axi_rlast		= m_axi_rlast;
 // assign s_axi_ruser		= m_axi_ruser;
 assign s_axi_rvalid	= m_axi_rvalid;
-// Instantiation of Axi Bus Interface s_axi
 
 
 	// Add user logic here
