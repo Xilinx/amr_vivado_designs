@@ -10,7 +10,7 @@ PFM_DIR = $(PWD)/platforms
 PFM_VER = 202420_1
 
 # valid platforms / overlays
-PFM_LIST += ve2302_amr_dev
+PFM_LIST += ve2302_amr_dev ve2302_xdma_base
 OVERLAY_LIST += bandwidth_test verify_test
 
 VITIS_DIR = overlays/examples

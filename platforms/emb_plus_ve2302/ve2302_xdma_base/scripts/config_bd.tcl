@@ -127,6 +127,7 @@ xilinx.com:ip:uuid_register:*\
 xilinx.com:ip:pfm_irq_ctlr:*\
 xilinx.com:ip:axi_gpio:*\
 xilinx.com:ip:proc_sys_reset:*\
+amd.com:user:axi_addr_mask:*\
 "
 
    set list_ips_missing ""
@@ -1267,16 +1268,34 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.NUM_SI {1} \
   ] $axi_sc_lpd
 
-  # Create instance: pf0_prot_conv, and set properties
-  set pf0_prot_conv [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect pf0_prot_conv]
+  # Create instance: xdma_lite_prot_conv, and set properties
+  set xdma_lite_prot_conv [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect xdma_lite_prot_conv]
   set_property -dict [list \
     CONFIG.NUM_SI {1} \
-  ] $pf0_prot_conv
+  ] $xdma_lite_prot_conv
 
 # GPIO to test PF0 axi_lite
   # Create instance: axi_test_gpio_pf0, and set properties
   set axi_test_gpio_pf0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_test_gpio_pf0 ]
   set_property CONFIG.C_DOUT_DEFAULT {0x000000F0} $axi_test_gpio_pf0
+
+  # Create instance: xdma_lite_addr_mask, and set properties
+  set xdma_lite_addr_mask [ create_bd_cell -type ip -vlnv amd.com:user:axi_addr_mask xdma_lite_addr_mask ]
+  set_property -dict [list \
+    CONFIG.C_ADDR_WIDTH {64} \
+    CONFIG.S_ADDR_MASK {0x00000000007FFFFF} \
+  ] $xdma_lite_addr_mask
+
+  # Create instance: xdma_bypass_addr_mask, and set properties
+  set xdma_bypass_addr_mask [ create_bd_cell -type ip -vlnv amd.com:user:axi_addr_mask xdma_bypass_addr_mask ]
+  set_property -dict [list \
+    CONFIG.C_ADDR_WIDTH {64} \
+    CONFIG.C_ARUSER_WIDTH {8} \
+    CONFIG.C_AWUSER_WIDTH {8} \
+    CONFIG.C_DATA_WIDTH {256} \
+    CONFIG.C_ID_WIDTH {4} \
+    CONFIG.S_ADDR_MASK {0x000000000FFFFFFF} \
+  ] $xdma_bypass_addr_mask
 
 
   # Create interface connections
@@ -1291,10 +1310,12 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_intf_net -intf_net axi_sc_lpd_M01_AXI [get_bd_intf_pins axi_sc_lpd/M01_AXI] [get_bd_intf_pins blp_logic/s_axi_uuid_lpd]
   connect_bd_intf_net -intf_net cips_M_AXI_LPD [get_bd_intf_pins cips/M_AXI_LPD] [get_bd_intf_pins axi_sc_lpd/S00_AXI]
   connect_bd_intf_net -intf_net pcie_refclk [get_bd_intf_pins pcie_refclk] [get_bd_intf_pins xdma_0_support/pcie_refclk]
-  connect_bd_intf_net -intf_net pf0_prot_conv_M00_AXI [get_bd_intf_pins pf0_prot_conv/M00_AXI] [get_bd_intf_pins axi_noc_ic/S07_AXI]
+  connect_bd_intf_net -intf_net xdma_lite_addr_mask_m_axi [get_bd_intf_pins xdma_lite_addr_mask/m_axi] [get_bd_intf_pins axi_noc_ic/S07_AXI]
+  connect_bd_intf_net -intf_net xdma_lite_prot_conv_M00_AXI [get_bd_intf_pins xdma_lite_prot_conv/M00_AXI] [get_bd_intf_pins xdma_lite_addr_mask/s_axi]
   connect_bd_intf_net -intf_net xdma_0_M_AXI [get_bd_intf_pins xdma_0/M_AXI] [get_bd_intf_pins axi_noc_ic/S06_AXI]
-  connect_bd_intf_net -intf_net xdma_0_M_AXI_BYPASS [get_bd_intf_pins xdma_0/M_AXI_BYPASS] [get_bd_intf_pins axi_noc_ic/S08_AXI]
-  connect_bd_intf_net -intf_net xdma_0_M_AXI_LITE [get_bd_intf_pins xdma_0/M_AXI_LITE] [get_bd_intf_pins pf0_prot_conv/S00_AXI]
+  connect_bd_intf_net -intf_net xdma_0_M_AXI_BYPASS [get_bd_intf_pins xdma_0/M_AXI_BYPASS] [get_bd_intf_pins xdma_bypass_addr_mask/s_axi]
+  connect_bd_intf_net -intf_net xdma_bypass_addr_mask_m_axi [get_bd_intf_pins xdma_bypass_addr_mask/m_axi] [get_bd_intf_pins axi_noc_ic/S08_AXI]
+  connect_bd_intf_net -intf_net xdma_0_M_AXI_LITE [get_bd_intf_pins xdma_0/M_AXI_LITE] [get_bd_intf_pins xdma_lite_prot_conv/S00_AXI]
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_control_if [get_bd_intf_pins xdma_0/pcie_cfg_control_if] [get_bd_intf_pins xdma_0_support/pcie_cfg_control]
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_external_msix_without_msi_if [get_bd_intf_pins xdma_0/pcie4_cfg_external_msix_without_msi_if] [get_bd_intf_pins xdma_0_support/pcie_cfg_external_msix_without_msi]
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_interrupt [get_bd_intf_pins xdma_0/pcie4_cfg_interrupt] [get_bd_intf_pins xdma_0_support/pcie_cfg_interrupt]
@@ -1338,9 +1359,11 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_net -net xdma_0_pcie_noc_axi_clk  [get_bd_pins xdma_0/axi_aclk] \
   [get_bd_pins xdma_0_smc/aclk] \
   [get_bd_pins axi_noc_ic/aclk8] \
-  [get_bd_pins pf0_prot_conv/aclk] \
+  [get_bd_pins xdma_lite_prot_conv/aclk] \
   [get_bd_pins axi_test_gpio_pf0/s_axi_aclk] \
-  [get_bd_pins axi_aclk]
+  [get_bd_pins axi_aclk] \
+  [get_bd_pins xdma_lite_addr_mask/aclk] \
+  [get_bd_pins xdma_bypass_addr_mask/aclk]
   connect_bd_net -net xdma_0_support_phy_rdy_out  [get_bd_pins xdma_0_support/phy_rdy_out] \
   [get_bd_pins xdma_0/phy_rdy_out_sd]
   connect_bd_net -net xdma_0_support_user_lnk_up  [get_bd_pins xdma_0_support/user_lnk_up] \
@@ -1350,9 +1373,11 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_net -net xdma_axi_aresetn  [get_bd_pins xdma_0/axi_aresetn] \
   [get_bd_pins force_reset_not_0/Op1] \
   [get_bd_pins xdma_0_smc/aresetn] \
-  [get_bd_pins pf0_prot_conv/aresetn] \
+  [get_bd_pins xdma_lite_prot_conv/aresetn] \
   [get_bd_pins axi_test_gpio_pf0/s_axi_aresetn] \
-  [get_bd_pins axi_aresetn]
+  [get_bd_pins axi_aresetn] \
+  [get_bd_pins xdma_lite_addr_mask/aresetn] \
+  [get_bd_pins xdma_bypass_addr_mask/aresetn]
   connect_bd_net -net xdma_pcie_user_clk  [get_bd_pins xdma_0_support/user_clk] \
   [get_bd_pins blp_logic/clk_pcie] \
   [get_bd_pins axi_noc_ic/aclk6] \
@@ -1460,21 +1485,24 @@ proc create_root_design { parentCell} {
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S01_INI/C2_DDR_LOW0] -force
   assign_bd_address -offset 0x050000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C3_DDR_CH1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C3_DDR_LOW0] -force
-  assign_bd_address -offset 0x08000000 -range 0x08000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C1_DDR_CH1] -force
-  assign_bd_address -offset 0x00000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs ulp/axi_test_gpio_pf1/S_AXI/Reg] -force
-  assign_bd_address -offset 0x00800000 -range 0x00800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C0_DDR_LOW0] -force
-  assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
-  assign_bd_address -offset 0x00010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
-  assign_bd_address -offset 0x00000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0] -force
-  assign_bd_address -offset 0x00100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0] -force
+  assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/xdma_bypass_addr_mask/s_axi/reg0] -force
+  assign_bd_address -offset 0x08000000 -range 0x08000000 -target_address_space [get_bd_addr_spaces blp/xdma_bypass_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C1_DDR_CH1] -force
+  assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_bypass_addr_mask/m_axi] [get_bd_addr_segs ulp/axi_test_gpio_pf1/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/xdma_lite_addr_mask/s_axi/reg0] -force
+  assign_bd_address -offset 0x00800000 -range 0x00800000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C0_DDR_LOW0] -force
+  assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0] -force
+  assign_bd_address -offset 0x00100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0] -force
+
 
   # Exclude Address Segments
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/LPD_AXI_NOC_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C3_DDR_CH1]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0]
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C1_DDR_LOW0]
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C0_DDR_CH1]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_bypass_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C1_DDR_LOW0]
+  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C0_DDR_CH1]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg]
 
 
