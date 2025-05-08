@@ -3,7 +3,7 @@
 
 
 # Set project variables
-set proj_dir ./project_cleanup
+set proj_dir ./project
 set userBD ulp
 set bd_tcl_dir ./scripts
 set output_dir ./xsa
