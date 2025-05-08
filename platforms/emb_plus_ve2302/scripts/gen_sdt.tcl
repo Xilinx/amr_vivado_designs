@@ -1,5 +1,5 @@
-# Copyright (C) 2025, Advanced Micro Devices, Inc.
-# SPDX-License-Identifier: Apache-2.0
+# Copyright (C) 2025 Advanced Micro Devices, Inc.
+# SPDX-License-Identifier: MIT
 
 # parse arguments
 for { set i 0 } { $i < $argc } { incr i } {

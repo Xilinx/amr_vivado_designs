@@ -1,14 +1,14 @@
-# Copyright (C) 2023 - 2025 Advanced Micro Devices, Inc.
+# Copyright (C) 2025 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 
 # Set project variables
-set proj_dir ./project
+set proj_dir ./project_cleanup
 set userBD ulp
 set bd_tcl_dir ./scripts
 set output_dir ./xsa
 set output {xsa}
-set xdc_list {./xdc/impl.xdc ./xdc/pcie.xdc }
+set xdc_list {./xdc/pcie.xdc }
 set ip_repo_path {./ip}
 set jobs 8
 set part xcve2302-sfva784-2MP-e-S
@@ -37,8 +37,6 @@ source $bd_tcl_dir/config_bd.tcl
 save_bd_design
 
 # Import constraint and hook files, and set their properties as required
-set_property used_in_synthesis false          [get_files *impl*.xdc]
-#set_property used_in_synthesis false          [get_files pblock.xdc]
 
 make_wrapper -files [get_files ${proj_name}.bd] -top
 import_files -force -norecurse $proj_dir/${proj_name}.srcs/sources_1/bd/${proj_name}/hdl/${proj_name}_wrapper.v
