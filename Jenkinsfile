@@ -270,7 +270,7 @@ pipeline {
                         pfm_base="ve2302_10g_mrmac"
                         pfm_name="ve2302_10g_mrmac"
                         board="emb_plus_ve2302"
-                        silicon="es1"
+                        silicon="prod"
                         work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_10g_mrmac"
                     }
                     when {
