@@ -41,7 +41,7 @@ if {$silicon == "es1"} {
 create_project -name $proj_name -force -dir $proj_dir -part $part
 set_property board_part $proj_board [current_project]
 
-import_files -fileset constrs_1 $xdc_list
+add_files -fileset constrs_1 $xdc_list
 
 source $bd_tcl_dir/config_bd.tcl
 

@@ -21,72 +21,169 @@ create_clock -period 40.000 -name clk2_25MHz -waveform {0.000 20.000} [get_ports
 
 set_property PACKAGE_PIN D27 [get_ports mdio_0_mdio_io]
 set_property IOSTANDARD LVCMOS15 [get_ports mdio_0_mdio_io]
+set_property SLEW SLOW [get_ports mdio_0_mdio_io]
+set_property DRIVE 8 [get_ports mdio_0_mdio_io]
+
+
 set_property PACKAGE_PIN B28 [get_ports mdio_0_mdc]
 set_property IOSTANDARD LVCMOS15 [get_ports mdio_0_mdc]
+set_property SLEW SLOW [get_ports mdio_0_mdc]
+set_property DRIVE 8 [get_ports mdio_0_mdc]
 
 set_property PACKAGE_PIN H25 [get_ports rgmii_0_txc]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_0_txc]
+set_property SLEW SLOW [get_ports rgmii_0_txc]
+set_property DRIVE 8 [get_ports rgmii_0_txc]
+
 set_property PACKAGE_PIN J26 [get_ports rgmii_0_tx_ctl]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_0_tx_ctl]
+set_property SLEW SLOW [get_ports rgmii_0_tx_ctl]
+set_property DRIVE 8 [get_ports rgmii_0_tx_ctl]
+
 set_property PACKAGE_PIN E26 [get_ports {rgmii_0_td[3]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_td[3]}]
+set_property SLEW SLOW [get_ports {rgmii_0_td[3]}]
+set_property DRIVE 8 [get_ports {rgmii_0_td[3]}]
+
 set_property PACKAGE_PIN F26 [get_ports {rgmii_0_td[2]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_td[2]}]
+set_property SLEW SLOW [get_ports {rgmii_0_td[2]}]
+set_property DRIVE 8 [get_ports {rgmii_0_td[2]}]
+
 set_property PACKAGE_PIN G26 [get_ports {rgmii_0_td[1]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_td[1]}]
+set_property SLEW SLOW [get_ports {rgmii_0_td[1]}]
+set_property DRIVE 8 [get_ports {rgmii_0_td[1]}]
+
 set_property PACKAGE_PIN G25 [get_ports {rgmii_0_td[0]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_td[0]}]
+set_property SLEW SLOW [get_ports {rgmii_0_td[0]}]
+set_property DRIVE 8 [get_ports {rgmii_0_td[0]}]
 
 set_property PACKAGE_PIN C25 [get_ports rgmii_0_rxc]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_0_rxc]
+set_property SLEW SLOW [get_ports rgmii_0_rxc]
+set_property DRIVE 8 [get_ports rgmii_0_rxc]
+set_property PULLDOWN TRUE [get_ports rgmii_0_rxc]
+
 set_property PACKAGE_PIN B25 [get_ports rgmii_0_rx_ctl]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_0_rx_ctl]
+set_property SLEW SLOW [get_ports rgmii_0_rx_ctl]
+set_property DRIVE 8 [get_ports rgmii_0_rx_ctl]
+set_property PULLDOWN TRUE [get_ports rgmii_0_rx_ctl]
+
 set_property PACKAGE_PIN B27 [get_ports {rgmii_0_rd[3]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_rd[3]}]
+set_property SLEW SLOW [get_ports {rgmii_0_rd[3]}]
+set_property DRIVE 8 [get_ports {rgmii_0_rd[3]}]
+set_property PULLUP TRUE [get_ports rgmii_0_rd[3]]
+
 set_property PACKAGE_PIN B26 [get_ports {rgmii_0_rd[2]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_rd[2]}]
+set_property SLEW SLOW [get_ports {rgmii_0_rd[2]}]
+set_property DRIVE 8 [get_ports {rgmii_0_rd[2]}]
+set_property PULLDOWN TRUE [get_ports rgmii_0_rd[2]]
+
 set_property PACKAGE_PIN A26 [get_ports {rgmii_0_rd[1]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_rd[1]}]
+set_property SLEW SLOW [get_ports {rgmii_0_rd[1]}]
+set_property DRIVE 8 [get_ports {rgmii_0_rd[1]}]
+set_property PULLDOWN TRUE [get_ports rgmii_0_rd[1]]
+
 set_property PACKAGE_PIN A25 [get_ports {rgmii_0_rd[0]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_0_rd[0]}]
+set_property SLEW SLOW [get_ports {rgmii_0_rd[0]}]
+set_property DRIVE 8 [get_ports {rgmii_0_rd[0]}]
+set_property PULLDOWN TRUE [get_ports rgmii_0_rd[0]]
 
 set_property PACKAGE_PIN C27 [get_ports reset_phy_0]
 set_property IOSTANDARD LVCMOS15 [get_ports reset_phy_0]
+set_property SLEW SLOW [get_ports reset_phy_0]
+set_property DRIVE 8 [get_ports reset_phy_0]
 
 
 
 set_property PACKAGE_PIN A20 [get_ports mdio_1_mdio_io]
 set_property IOSTANDARD LVCMOS15 [get_ports mdio_1_mdio_io]
+set_property SLEW SLOW [get_ports mdio_1_mdio_io]
+set_property DRIVE 8 [get_ports mdio_1_mdio_io]
+
 set_property PACKAGE_PIN A21 [get_ports mdio_1_mdc]
 set_property IOSTANDARD LVCMOS15 [get_ports mdio_1_mdc]
+set_property SLEW SLOW [get_ports mdio_1_mdc]
+set_property DRIVE 8 [get_ports mdio_1_mdc]
 
 set_property PACKAGE_PIN H23 [get_ports rgmii_1_txc]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_1_txc]
+set_property SLEW SLOW [get_ports rgmii_1_txc]
+set_property DRIVE 8 [get_ports rgmii_1_txc]
+
 set_property PACKAGE_PIN H24 [get_ports rgmii_1_tx_ctl]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_1_tx_ctl]
+set_property SLEW SLOW [get_ports rgmii_1_tx_ctl]
+set_property DRIVE 8 [get_ports rgmii_1_tx_ctl]
+
 set_property PACKAGE_PIN E23 [get_ports {rgmii_1_td[3]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_td[3]}]
+set_property SLEW SLOW [get_ports {rgmii_1_td[3]}]
+set_property DRIVE 8 [get_ports {rgmii_1_td[3]}]
+
 set_property PACKAGE_PIN E22 [get_ports {rgmii_1_td[2]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_td[2]}]
+set_property SLEW SLOW [get_ports {rgmii_1_td[2]}]
+set_property DRIVE 8 [get_ports {rgmii_1_td[2]}]
+
+
 set_property PACKAGE_PIN G23 [get_ports {rgmii_1_td[1]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_td[1]}]
+set_property SLEW SLOW [get_ports {rgmii_1_td[1]}]
+set_property DRIVE 8 [get_ports {rgmii_1_td[1]}]
+
 set_property PACKAGE_PIN F22 [get_ports {rgmii_1_td[0]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_td[0]}]
+set_property SLEW SLOW [get_ports {rgmii_1_td[0]}]
+set_property DRIVE 8 [get_ports {rgmii_1_td[0]}]
 
 set_property PACKAGE_PIN F23 [get_ports rgmii_1_rxc]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_1_rxc]
+set_property SLEW SLOW [get_ports rgmii_1_rxc]
+set_property DRIVE 8 [get_ports rgmii_1_rxc]
+set_property PULLDOWN TRUE [get_ports rgmii_1_rxc]
+
 set_property PACKAGE_PIN F24 [get_ports rgmii_1_rx_ctl]
 set_property IOSTANDARD LVCMOS15 [get_ports rgmii_1_rx_ctl]
+set_property SLEW SLOW [get_ports rgmii_1_rx_ctl]
+set_property DRIVE 8 [get_ports rgmii_1_rx_ctl]
+set_property PULLDOWN TRUE [get_ports rgmii_1_rx_ctl]
+
 set_property PACKAGE_PIN D25 [get_ports {rgmii_1_rd[3]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_rd[3]}]
+set_property SLEW SLOW [get_ports {rgmii_1_rd[3]}]
+set_property DRIVE 8 [get_ports {rgmii_1_rd[3]}]
+set_property PULLDOWN TRUE [get_ports rgmii_1_rd[3]]
+
 set_property PACKAGE_PIN D26 [get_ports {rgmii_1_rd[2]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_rd[2]}]
+set_property SLEW SLOW [get_ports {rgmii_1_rd[2]}]
+set_property DRIVE 8 [get_ports {rgmii_1_rd[2]}]
+set_property PULLDOWN TRUE [get_ports rgmii_1_rd[2]]
+
 set_property PACKAGE_PIN E24 [get_ports {rgmii_1_rd[1]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_rd[1]}]
+set_property SLEW SLOW [get_ports {rgmii_1_rd[1]}]
+set_property DRIVE 8 [get_ports {rgmii_1_rd[1]}]
+set_property PULLUP TRUE [get_ports rgmii_1_rd[1]]
+
 set_property PACKAGE_PIN F25 [get_ports {rgmii_1_rd[0]}]
 set_property IOSTANDARD LVCMOS15 [get_ports {rgmii_1_rd[0]}]
+set_property SLEW SLOW [get_ports {rgmii_1_rd[0]}]
+set_property DRIVE 8 [get_ports {rgmii_1_rd[0]}]
+set_property PULLDOWN TRUE [get_ports rgmii_1_rd[0]]
+
 set_property PACKAGE_PIN C22 [get_ports reset_phy_1]
 set_property IOSTANDARD LVCMOS15 [get_ports reset_phy_1]
+set_property SLEW SLOW [get_ports reset_phy_1]
+set_property DRIVE 8 [get_ports reset_phy_1]
 
 set_property PACKAGE_PIN D10 [get_ports clk1_25MHz]
 set_property IOSTANDARD LVCMOS18 [get_ports clk1_25MHz]
