@@ -1,9 +1,5 @@
-# Copyright (C) 2024 Advanced Micro Devices, Inc.
+# Copyright (C) 2024 - 2025 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
-
-# Set the necessary Vivado params for the platform build
-enable_beta_device xcve2302-*
-set_param board.repoPaths {../../../common/XilinxBoardStore/boards/Xilinx/}
 
 # Set project variables
 set proj_dir ./project

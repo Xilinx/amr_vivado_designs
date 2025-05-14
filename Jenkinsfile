@@ -142,10 +142,10 @@ pipeline {
     }
     environment {
         deploy_branch="main"
-        tool_release="2024.1"
+        tool_release="2024.2"
         tool_build=sh(script: "readlink /proj/xbuilds/${env.tool_release}_daily_latest | sed -r 's/${env.tool_release}_(.*)/\\1/'", returnStdout: true)
         auto_branch="2022.1"
-        pfm_ver="202410_1"
+        pfm_ver="202420_1"
         ws="${WORKSPACE}"
         setup="${ws}/paeg-helper/env-setup.sh"
         lsf="${ws}/paeg-helper/scripts/lsf"
