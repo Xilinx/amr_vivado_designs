@@ -1,4 +1,0 @@
-[submodule "common/XilinxBoardStore"]
-	path = common/XilinxBoardStore
-	url = https://github.com/Xilinx/XilinxBoardStore.git
-	branch = 2024.1
