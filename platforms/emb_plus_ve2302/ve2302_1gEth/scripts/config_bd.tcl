@@ -413,6 +413,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:cips \
 
   # Create instance: axi_dma_0, and set properties
   set axi_dma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma axi_dma_0 ]
+  set_property -dict [list \
+    CONFIG.c_include_mm2s_dre {1} \
+    CONFIG.c_include_s2mm_dre {1} \
+    CONFIG.c_sg_length_width {16} \
+    CONFIG.c_sg_use_stsapp_length {1} \
+  ] $axi_dma_0
 
 
   # Create instance: smartconnect_1, and set properties
@@ -422,6 +428,12 @@ apply_bd_automation -rule xilinx.com:bd_rule:cips \
 
   # Create instance: axi_dma_1, and set properties
   set axi_dma_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma axi_dma_1 ]
+  set_property -dict [list \
+    CONFIG.c_include_mm2s_dre {1} \
+    CONFIG.c_include_s2mm_dre {1} \
+    CONFIG.c_sg_length_width {16} \
+    CONFIG.c_sg_use_stsapp_length {1} \
+  ] $axi_dma_1
 
   # Create instance: smartconnect_2, and set properties
   set smartconnect_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smartconnect_2 ]
