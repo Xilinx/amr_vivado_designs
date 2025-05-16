@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2024 Advanced Micro Devices, Inc.
+ * Copyright (C) 2024 - 2025 Advanced Micro Devices, Inc.
  * SPDX-License-Identifier: MIT
  *
  */
@@ -44,7 +44,6 @@ def createWorkDir() {
     '''
 }
 
-
 def buildXSA() {
     sh label: 'platform build',
     script: '''
@@ -55,7 +54,7 @@ def buildXSA() {
         cd ${work_dir}
         pushd ${work_dir}
         source ${setup} -r ${tool_release} -b ${tool_build} && set -e
-        ${lsf} make xsa JOBS=32 SILICON=${silicon}
+        ${lsf} make all JOBS=32
         popd
     '''
 }
@@ -142,10 +141,10 @@ pipeline {
     }
     environment {
         deploy_branch="main"
-        tool_release="2024.2"
+        tool_release="2025.1"
         tool_build=sh(script: "readlink /proj/xbuilds/${env.tool_release}_daily_latest | sed -r 's/${env.tool_release}_(.*)/\\1/'", returnStdout: true)
-        auto_branch="2022.1"
-        pfm_ver="202420_1"
+        auto_branch="2025.1"
+        pfm_ver="202510_1"
         ws="${WORKSPACE}"
         setup="${ws}/paeg-helper/env-setup.sh"
         lsf="${ws}/paeg-helper/scripts/lsf"
@@ -153,18 +152,18 @@ pipeline {
         PAEG_LSF_QUEUE="long"
         BUILD_DATE=sh(script: 'date +"%m%d%H%M" | tr -d "\n"', returnStdout: true)
         BUILD_ID="${env.BRANCH_NAME == env.deploy_branch ? env.BUILD_DATE : env.BRANCH_NAME}"
-        //HOSTS="${env.BRANCH_NAME == env.deploy_branch ? 'localhost xcorsync01' : 'localhost'}"
+        HOSTS="${env.BRANCH_NAME == env.deploy_branch ? 'localhost xcorsync01' : 'localhost'}"
         PAEG_BASE_DIR="/wrk/paeg_builds/build-artifacts/emb-plus-vivado-designs/${tool_release}"
-        //YOCTO_BASE_DIR="/proj/yocto/rave_artifacts/${tool_release}/hw"
-        //DEPLOY_BASE_DIR="${env.BRANCH_NAME == env.deploy_branch ? env.YOCTO_BASE_DIR : env.PAEG_BASE_DIR}"
-        DEPLOY_BASE_DIR="/wrk/paeg_builds/build-artifacts/emb-plus-vivado-designs/${tool_release}"
+        YOCTO_BASE_DIR="/proj/yocto/rave_artifacts/${tool_release}/hw"
+        DEPLOY_BASE_DIR="${env.BRANCH_NAME == env.deploy_branch ? env.YOCTO_BASE_DIR : env.PAEG_BASE_DIR}"
         DEPLOY_DIR="${DEPLOY_BASE_DIR}/${BUILD_ID}"
-        //DEPLOY_PFM_DIR="${YOCTO_BASE_DIR}/daily_latest"
+        DEPLOY_PFM_DIR="${YOCTO_BASE_DIR}/daily_latest"
         DEPLOY_MAX=15
     }
     options {
         // don't let the implicit checkout happen
         skipDefaultCheckout true
+        // keep logs for last 20 builds
         buildDiscarder(logRotator(numToKeepStr: '20'))
     }
     triggers {
@@ -215,9 +214,9 @@ pipeline {
                 }
             }
             parallel {
-                stage('ve2302_pcie_qdma')  {
+                stage('ve2302_xdma_base')  {
                     environment {
-                        pfm_name="ve2302_pcie_qdma"
+                        pfm_name="ve2302_xdma_base"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     steps {
@@ -233,16 +232,51 @@ pipeline {
                         createWorkDir()
                     }
                 }
+                stage('ve2302_1gEth')  {
+                    environment {
+                        pfm_name="ve2302_1gEth"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
             }
         }
         stage('Build Platforms') {
             parallel {
-                stage('ve2302_pcie_qdma 1gEth platform build')  {
+                stage('ve2302_xdma_base platform build')  {
                     environment {
-                        pfm_base="ve2302_pcie_qdma"
-                        pfm_name="ve2302_pcie_qdma"
+                        pfm_base="ve2302_xdma_base"
+                        pfm_name="ve2302_xdma_base"
                         board="emb_plus_ve2302"
-                        silicon="prod"
+                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_xdma_base"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/platforms/emb_plus_ve2302/ve2302_xdma_base/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
+                            expression { true }
+                        }
+                    }
+                    steps {
+                        buildXSA()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_PFM_SUCCESS = '1'
+                            }
+                            deployBaseXSA()
+                        }
+                    }
+                }
+                stage('ve2302_1gEth platform build')  {
+                    environment {
+                        pfm_base="ve2302_1gEth"
+                        pfm_name="ve2302_1gEth"
+                        board="emb_plus_ve2302"
                         work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_1gEth"
                     }
                     when {
@@ -270,7 +304,6 @@ pipeline {
                         pfm_base="ve2302_10g_mrmac"
                         pfm_name="ve2302_10g_mrmac"
                         board="emb_plus_ve2302"
-                        silicon="prod"
                         work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_10g_mrmac"
                     }
                     when {
@@ -287,7 +320,7 @@ pipeline {
                     post {
                         success {
                             script {
-                                env.VE2302_ES1_PFM_SUCCESS = '1'
+                                env.VE2302_PFM_SUCCESS = '1'
                             }
                             deployBaseXSA()
                         }
