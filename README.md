@@ -8,8 +8,11 @@ The emb_plus_ve2302 hw_platform targets the ve2302 FPGA.
 Variations of the platforms included in this repo are:
 ve2302_1gEth      - Two channels of 1G Ethernet
 ve2302_10g_mrmac  - Two 10G Ethernet channels utilizing the MRMAC hard block in Versal
+ve2302_xdma_base  - Used for AMR development, will be base for DFX in future
 
 ## Instructions
+
+The 'main' branch is targeting Vivado 2025.1.
 
 To clone this repo, run:
 ```
