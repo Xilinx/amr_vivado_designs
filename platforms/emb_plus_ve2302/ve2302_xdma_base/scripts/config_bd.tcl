@@ -1253,7 +1253,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   set xdma_lite_addr_mask [ create_bd_cell -type ip -vlnv amd.com:user:axi_addr_mask xdma_lite_addr_mask ]
   set_property -dict [list \
     CONFIG.C_ADDR_WIDTH {64} \
-    CONFIG.S_ADDR_MASK {0x00000000007FFFFF} \
+    CONFIG.S_ADDR_MASK {0x0000000000FFFFFF} \
   ] $xdma_lite_addr_mask
 
   # Create instance: xdma_bypass_addr_mask, and set properties
@@ -1479,7 +1479,7 @@ proc create_root_design { parentCell} {
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs blp/xdma_bypass_addr_mask/s_axi/reg0] -force
   assign_bd_address -offset 0x08000000 -range 0x08000000 -target_address_space [get_bd_addr_spaces blp/xdma_bypass_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C1_DDR_CH1] -force
   assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_bypass_addr_mask/m_axi] [get_bd_addr_segs ulp/axi_test_gpio_pf1/S_AXI/Reg] -force
-  assign_bd_address -offset 0x00000000 -range 0x00800000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/xdma_lite_addr_mask/s_axi/reg0] -force
+  assign_bd_address -offset 0x00000000 -range 0x01000000 -target_address_space [get_bd_addr_spaces blp/xdma_0/M_AXI_LITE] [get_bd_addr_segs blp/xdma_lite_addr_mask/s_axi/reg0] -force
   assign_bd_address -offset 0x00800000 -range 0x00800000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
   assign_bd_address -offset 0x00010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
