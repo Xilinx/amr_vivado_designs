@@ -1,4 +1,4 @@
-# Copyright (C) 2023 - 2025 Advanced Micro Devices, Inc.
+# Copyright (C) 2025 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 ################################################################
@@ -835,7 +835,6 @@ set_property name axi_noc_mc_1x [get_bd_cells /blp/axi_noc_1]
 
 # Change settings to use INI ports and match settings used in non-automated flow
 # Also add anything the partition metadata script needs to see
-startgroup
 set_property -dict [list \
   CONFIG.MC_CH_INTERLEAVING_SIZE {256_Bytes} \
   CONFIG.NUM_NSI {7} \
@@ -850,7 +849,6 @@ set_property -dict [list CONFIG.CONNECTIONS {MC_3 {read_bw {500} write_bw {500} 
 set_property -dict [list CONFIG.CONNECTIONS {MC_1 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} CONFIG.INI_STRATEGY {load}] [get_bd_intf_pins /blp/axi_noc_mc_1x/S04_INI]
 set_property -dict [list CONFIG.CONNECTIONS {MC_2 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} CONFIG.INI_STRATEGY {load}] [get_bd_intf_pins /blp/axi_noc_mc_1x/S05_INI]
 set_property -dict [list CONFIG.CONNECTIONS {MC_3 {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} CONFIG.INI_STRATEGY {load}] [get_bd_intf_pins /blp/axi_noc_mc_1x/S06_INI]
-endgroup
 
 # Turn off memory controller in NOC attached to CIPS directly and match settings in non-automated flow
 set_property name axi_noc_ic [get_bd_cells axi_noc_0]
