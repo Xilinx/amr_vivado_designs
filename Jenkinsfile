@@ -249,6 +249,15 @@ pipeline {
                         createWorkDir()
                     }
                 }
+                stage('ve2302_gmsl')  {
+                    environment {
+                        pfm_name="ve2302_gmsl"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
             }
         }
         stage('Build Platforms') {
@@ -318,6 +327,33 @@ pipeline {
                     when {
                         anyOf {
                             changeset "**/platforms/ve2302_10g_mrmac/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
+                            expression { true }
+                        }
+                    }
+                    steps {
+                        buildXSA()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_PFM_SUCCESS = '1'
+                            }
+                            deployBaseXSA()
+                        }
+                    }
+                }
+                stage('ve2302_gmsl platform build')  {
+                    environment {
+                        pfm_base="ve2302_gmsl"
+                        pfm_name="ve2302_gmsl"
+                        board="emb_plus_ve2302"
+                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_gmsl"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/platforms/emb_plus_ve2302/ve2302_gmsl/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
