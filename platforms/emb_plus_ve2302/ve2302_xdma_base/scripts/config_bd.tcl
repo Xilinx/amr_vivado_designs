@@ -1166,6 +1166,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.mode_selection {Advanced} \
     CONFIG.cfg_mgmt_if {false} \
     CONFIG.mult_pf_des {true} \
+    CONFIG.pf_swap {true} \
     CONFIG.pf0_bar0_64bit {true} \
     CONFIG.pf0_bar0_prefetchable {false} \
     CONFIG.pf0_bar0_scale {Megabytes} \
