@@ -4,11 +4,12 @@
 
 # Set project variables
 set proj_dir ./project
+set dfx_module bram_gpio
 set userBD ulp
 set bd_tcl_dir ./scripts
 set output_dir ./xsa
 set output {xsa}
-set xdc_list {./xdc/pcie.xdc }
+set xdc_list {./xdc/pcie.xdc ./xdc/pblock.xdc}
 set ip_repo_path {./ip}
 set jobs 8
 set part xcve2302-sfva784-2MP-e-S
@@ -22,7 +23,13 @@ for { set i 0 } { $i < $argc } { incr i } {
     incr i
     set jobs [lindex $argv $i]
   }
+  if { [lindex $argv $i] == "-dfx" } {
+    incr i
+    set dfx_module [lindex $argv $i]
+  }
 }
+
+set userBD_dir ../../dfx/$dfx_module
 
 create_project -name $proj_name -force -dir $proj_dir -part $part
 set_property board_part $proj_board [current_project]
@@ -32,6 +39,7 @@ add_files -fileset constrs_1 $xdc_list
 set_property ip_repo_paths $ip_repo_path [current_project]
 update_ip_catalog
 
+source $userBD_dir/bd/${userBD}.tcl
 source $bd_tcl_dir/config_bd.tcl
 
 save_bd_design
@@ -79,8 +87,8 @@ foreach ip [get_ips] {
 close $fd
 
 # Set the DFX configuration, then run all synthesis and implementation steps
-#create_pr_configuration -name config_1 -partitions [list ${proj_name}_i/${userBD}:${userBD}_inst_0]
-#set_property PR_CONFIGURATION config_1 [get_runs impl_1]
+create_pr_configuration -name config_1 -partitions [list ${proj_name}_i/${userBD}:${userBD}_inst_0]
+set_property PR_CONFIGURATION config_1 [get_runs impl_1]
 
 #set_property strategy Performance_Auto_3 [get_runs impl_1]
 
@@ -89,8 +97,9 @@ wait_on_run impl_1
 open_run impl_1
 
 
-#write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}_base.xsa
-write_hw_platform -force -fixed -hw ${proj_dir}/${proj_name}.xsa
+write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}.xsa
 validate_hw_platform -verbose ${proj_dir}/${proj_name}.xsa
+write_hw_platform -force -fixed -hw -rp ${proj_name}_i/${userBD} ${proj_dir}/${proj_name}_${dfx_module}.xsa
+validate_hw_platform -verbose ${proj_dir}/${proj_name}_${dfx_module}.xsa
 
 
