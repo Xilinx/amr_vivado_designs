@@ -45,16 +45,21 @@ def createWorkDir() {
 }
 
 def buildXSA() {
-    sh label: 'platform build',
+    sh label: 'XSA build',
     script: '''
-        pwd
-        ls -la
-        tree .
-        ls -la
-        cd ${work_dir}
-        pushd ${work_dir}
+        pushd ${work_dir}/${board}/platforms/${pfm_name}
         source ${setup} -r ${tool_release} -b ${tool_build} && set -e
         ${lsf} make all JOBS=32
+        popd
+    '''
+}
+
+def buildDFX() {
+    sh label: 'DFX XSA build',
+    script: '''
+        pushd ${work_dir}/${board}/platforms/${pfm_name}
+        source ${setup} -r ${tool_release} -b ${tool_build} && set -e
+        ${lsf} make all JOBS=32 DFX=${dfx_name}
         popd
     '''
 }
@@ -63,19 +68,24 @@ def buildXSA() {
 def deployBaseXSA() {
     sh label: 'base XSA deploy',
     script: '''
-        pushd ${work_dir}/project
+        pushd ${work_dir}/${board}/platforms/${pfm_name}/project
         DSTDIR=${DEPLOY_DIR}/Vivado_files
         mkdir -p ${DSTDIR}/${pfm_name}
-        pwd
-        ls -la
-        tree .
-        ls -la
         cp *.xsa ${DSTDIR}/${pfm_name}
         pushd ${DSTDIR}/
-        ls -la
-        pwd
-        tree .
-        rsync -avh --delete ${work_dir}/project ${DSTDIR}/${pfm_name}
+        rsync -avh --delete ${work_dir}/${board}/platforms/${pfm_name}/project ${DSTDIR}/${pfm_name}
+    '''
+}
+
+def deployDFX() {
+    sh label: 'DFX XSA deploy',
+    script: '''
+        pushd ${work_dir}/${board}/platforms/${pfm_name}/project
+        DSTDIR=${DEPLOY_DIR}/Vivado_files
+        mkdir -p ${DSTDIR}/${pfm_dfx_name}
+        cp *.xsa ${DSTDIR}/${pfm_dfx_name}
+        pushd ${DSTDIR}/
+        rsync -avh --delete ${work_dir}/${board}/platforms/${pfm_name}/project ${DSTDIR}/${pfm_dfx_name}
     '''
 }
 
@@ -212,9 +222,9 @@ pipeline {
                 }
             }
             parallel {
-                stage('ve2302_xdma_base')  {
+                stage('ve2302_xdma_bram_gpio')  {
                     environment {
-                        pfm_name="ve2302_xdma_base"
+                        pfm_name="ve2302_xdma_bram_gpio"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     steps {
@@ -243,43 +253,45 @@ pipeline {
         }
         stage('Build Platforms') {
             parallel {
-                stage('ve2302_xdma_base platform build')  {
+                stage('ve2302_xdma_bram_gpio')  {
                     environment {
-                        pfm_base="ve2302_xdma_base"
+                        dfx_name="bram_gpio"
                         pfm_name="ve2302_xdma_base"
+                        pfm_base="ve2302_xdma"
+                        pfm_dfx_name="${pfm_base}_${dfx_name}"
                         board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_xdma_base"
+                        work_dir="${ws}/build/${pfm_dfx_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_xdma_base/**"
+                            changeset "**/platforms/ve2302_xdma_base/**"
+                            changeset "**/dfx/bram_gpio/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
                         }
                     }
                     steps {
-                        buildXSA()
+                        buildDFX()
                     }
                     post {
                         success {
                             script {
                                 env.VE2302_PFM_SUCCESS = '1'
                             }
-                            deployBaseXSA()
+                            deployDFX()
                         }
                     }
                 }
-                stage('ve2302_1gEth platform build')  {
+                stage('ve2302_1gEth build')  {
                     environment {
-                        pfm_base="ve2302_1gEth"
                         pfm_name="ve2302_1gEth"
                         board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_1gEth"
+                        work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_1gEth/**"
+                            changeset "**/platforms/ve2302_1gEth/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
@@ -299,14 +311,13 @@ pipeline {
                 }
                 stage('ve2302_10g_mrmac platform build')  {
                     environment {
-                        pfm_base="ve2302_10g_mrmac"
                         pfm_name="ve2302_10g_mrmac"
                         board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_10g_mrmac"
+                        work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_10g_mrmac/**"
+                            changeset "**/platforms/ve2302_10g_mrmac/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
