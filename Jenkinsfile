@@ -355,14 +355,13 @@ pipeline {
                 }
                 stage('ve2302_gmsl platform build')  {
                     environment {
-                        pfm_base="ve2302_gmsl"
                         pfm_name="ve2302_gmsl"
                         board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_gmsl"
+                        work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_gmsl/**"
+                            changeset "**/platforms/ve2302_gmsl/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
@@ -382,14 +381,13 @@ pipeline {
                 }
                 stage('ve2302_xdma_gmsl platform build')  {
                     environment {
-                        pfm_base="ve2302_xdma_gmsl"
                         pfm_name="ve2302_xdma_gmsl"
                         board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}/platforms/${board}/ve2302_xdma_gmsl"
+                        work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/emb_plus_ve2302/ve2302_xdma_gmsl/**"
+                            changeset "**/platforms/ve2302_xdma_gmsl/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
