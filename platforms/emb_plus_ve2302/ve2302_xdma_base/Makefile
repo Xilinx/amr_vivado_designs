@@ -47,6 +47,7 @@ $(VIV_XSA): $(VIV_SRC) $(VIV_CONFIG)
 
 sdt: $(SDT_SRC) $(VIV_XSA)
 	$(SDTGEN) $(SDT_SRC) -xsa_path $(VIV_XSA)
+	tclsh $(SDT_SCRIPT_DIR)/fix_dtsi.tcl
 
 .PHONY: clean
 clean:
