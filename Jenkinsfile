@@ -249,6 +249,24 @@ pipeline {
                         createWorkDir()
                     }
                 }
+                stage('ve2302_gmsl')  {
+                    environment {
+                        pfm_name="ve2302_gmsl"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
+                stage('ve2302_xdma_gmsl')  {
+                    environment {
+                        pfm_name="ve2302_xdma_gmsl"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
             }
         }
         stage('Build Platforms') {
@@ -318,6 +336,58 @@ pipeline {
                     when {
                         anyOf {
                             changeset "**/platforms/ve2302_10g_mrmac/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
+                            expression { true }
+                        }
+                    }
+                    steps {
+                        buildXSA()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_PFM_SUCCESS = '1'
+                            }
+                            deployBaseXSA()
+                        }
+                    }
+                }
+                stage('ve2302_gmsl platform build')  {
+                    environment {
+                        pfm_name="ve2302_gmsl"
+                        board="emb_plus_ve2302"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/platforms/ve2302_gmsl/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
+                            expression { true }
+                        }
+                    }
+                    steps {
+                        buildXSA()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_PFM_SUCCESS = '1'
+                            }
+                            deployBaseXSA()
+                        }
+                    }
+                }
+                stage('ve2302_xdma_gmsl platform build')  {
+                    environment {
+                        pfm_name="ve2302_xdma_gmsl"
+                        board="emb_plus_ve2302"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/platforms/ve2302_xdma_gmsl/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
