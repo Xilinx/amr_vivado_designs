@@ -4,8 +4,6 @@
 
 # Set project variables
 set proj_dir ./project
-set dfx_module bram_gpio
-set userBD ulp
 set bd_tcl_dir ./scripts
 set output_dir ./xsa
 set output {xsa}
@@ -23,13 +21,9 @@ for { set i 0 } { $i < $argc } { incr i } {
     incr i
     set jobs [lindex $argv $i]
   }
-  if { [lindex $argv $i] == "-dfx" } {
-    incr i
-    set dfx_module [lindex $argv $i]
-  }
 }
 
-set userBD_dir ../../dfx/$dfx_module
+set userBD_dir ../../dfx
 
 create_project -name $proj_name -force -dir $proj_dir -part $part
 set_property board_part $proj_board [current_project]
@@ -39,7 +33,8 @@ add_files -fileset constrs_1 $xdc_list
 set_property ip_repo_paths $ip_repo_path [current_project]
 update_ip_catalog
 
-source $userBD_dir/bd/${userBD}.tcl
+source $userBD_dir/bram_gpio/bd/bram_gpio.tcl
+source $userBD_dir/just_bram/bd/just_bram.tcl
 source $bd_tcl_dir/config_bd.tcl
 
 save_bd_design
@@ -87,19 +82,26 @@ foreach ip [get_ips] {
 close $fd
 
 # Set the DFX configuration, then run all synthesis and implementation steps
-create_pr_configuration -name config_1 -partitions [list ${proj_name}_i/${userBD}:${userBD}_inst_0]
+create_pr_configuration -name config_1 -partitions [list ve2302_xdma_base_i/ulp:bram_gpio_inst_0 ]
+create_pr_configuration -name config_2 -partitions [list ve2302_xdma_base_i/ulp:just_bram_inst_0 ]
 set_property PR_CONFIGURATION config_1 [get_runs impl_1]
+create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Advanced Implementation 2025} -pr_config config_2
 
 #set_property strategy Performance_Auto_3 [get_runs impl_1]
 
 launch_runs impl_1 -to_step write_device_image -jobs $jobs
+launch_runs child_0_impl_1 -to_step write_device_image -jobs $jobs
+
 wait_on_run impl_1
 open_run impl_1
-
-
 write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}.xsa
 validate_hw_platform -verbose ${proj_dir}/${proj_name}.xsa
-write_hw_platform -force -fixed -hw -rp ${proj_name}_i/${userBD} ${proj_dir}/${proj_name}_${dfx_module}.xsa
-validate_hw_platform -verbose ${proj_dir}/${proj_name}_${dfx_module}.xsa
+write_hw_platform -force -fixed -hw -rp ${proj_name}_i/ulp ${proj_dir}/${proj_name}_bram_gpio.xsa
+validate_hw_platform -verbose ${proj_dir}/${proj_name}_bram_gpio.xsa
+
+wait_on_run child_0_impl_1
+open_run child_0_impl_1
+write_hw_platform -force -fixed -hw -rp ${proj_name}_i/ulp ${proj_dir}/${proj_name}_just_bram.xsa
+validate_hw_platform -verbose ${proj_dir}/${proj_name}_just_bram.xsa
 
 

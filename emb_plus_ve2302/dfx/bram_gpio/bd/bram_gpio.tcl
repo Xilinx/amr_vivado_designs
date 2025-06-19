@@ -39,7 +39,7 @@ if { $list_projs eq "" } {
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name ulp
+set design_name bram_gpio
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -78,7 +78,7 @@ if { ${design_name} eq "" } {
    set errMsg "Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
    set nRet 1
 } elseif { [get_files -quiet ${design_name}.bd] ne "" } {
-   # USE CASES: 
+   # USE CASES:
    #    6) Current opened design, has components, but diff names, design_name exists in project.
    #    7) No opened design, design_name exists in project.
 
@@ -112,7 +112,7 @@ set bCheckIPsPassed 1
 ##################################################################
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
-   set list_check_ips "\ 
+   set list_check_ips "\
 xilinx.com:ip:axi_noc:*\
 xilinx.com:ip:ai_engine:*\
 xilinx.com:ip:axi_bram_ctrl:*\
@@ -187,12 +187,14 @@ proc create_root_design { parentCell } {
    CONFIG.COMPUTED_STRATEGY {load} \
    CONFIG.INI_STRATEGY {load} \
    ] $ULP_AIE_INI
+  set_property APERTURES {{0x200_0000_0000 4G}} $ULP_AIE_INI
 
   set ULP_PL_INI [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:inimm_rtl:1.0 ULP_PL_INI ]
   set_property -dict [ list \
    CONFIG.COMPUTED_STRATEGY {load} \
    CONFIG.INI_STRATEGY {load} \
    ] $ULP_PL_INI
+  set_property APERTURES {{0x202_0000_0000 8M}} $ULP_PL_INI
 
 
   # Create ports
@@ -321,10 +323,10 @@ proc create_root_design { parentCell } {
   [get_bd_pins smartconnect_0/aresetn]
 
  # Create address segments
-  assign_bd_address -offset 0x020000000000 -range 0x000100000000 -target_address_space [get_bd_addr_spaces ULP_AIE_INI] [get_bd_addr_segs ai_engine_0/S00_AXI/AIE_ARRAY_0] -force
-  assign_bd_address -offset 0x020200030000 -range 0x00002000 -target_address_space [get_bd_addr_spaces ULP_PL_INI] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-  assign_bd_address -offset 0x020200010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ULP_PL_INI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
-  assign_bd_address -offset 0x020200020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces ULP_PL_INI] [get_bd_addr_segs axi_test_gpio_pf1/S_AXI/Reg] -force
+  assign_bd_address -offset 0x020000000000 -range 4G -target_address_space [get_bd_addr_spaces ULP_AIE_INI] [get_bd_addr_segs ai_engine_0/S00_AXI/AIE_ARRAY_0] -force
+  assign_bd_address -offset 0x020200030000 -range 8K -target_address_space [get_bd_addr_spaces ULP_PL_INI] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x020200010000 -range 4K -target_address_space [get_bd_addr_spaces ULP_PL_INI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x020200020000 -range 4K -target_address_space [get_bd_addr_spaces ULP_PL_INI] [get_bd_addr_segs axi_test_gpio_pf1/S_AXI/Reg] -force
 
   # Restore current instance
   current_bd_instance $oldCurInst

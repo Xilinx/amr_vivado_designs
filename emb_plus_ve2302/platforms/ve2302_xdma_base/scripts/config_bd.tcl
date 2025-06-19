@@ -29,7 +29,7 @@ set script_folder [_tcl::get_script_folder]
 
 # The design that will be created by this Tcl script contains the following
 # block design container source references:
-# ulp
+# bram_gpio, just_bram
 
 # Please add the sources before sourcing this Tcl script.
 
@@ -117,8 +117,6 @@ xilinx.com:inline_hdl:ilconcat:*\
 xilinx.com:inline_hdl:ilconstant:*\
 xilinx.com:ip:xdma:*\
 xilinx.com:ip:smartconnect:*\
-xilinx.com:inline_hdl:ilconstant:*\
-xilinx.com:ip:ai_engine:*\
 xilinx.com:ip:gt_quad_base:*\
 xilinx.com:ip:pcie_versal:*\
 xilinx.com:ip:pcie_phy_versal:*\
@@ -150,15 +148,18 @@ amd.com:user:axi_addr_mask:*\
 # CHECK Block Design Container Sources
 ##################################################################
 set bCheckSources 1
-set list_bdc_active "ulp"
+set list_bdc_active "bram_gpio"
+set list_bdc_dfx "just_bram"
 
 array set map_bdc_missing {}
 set map_bdc_missing(ACTIVE) ""
+set map_bdc_missing(DFX) ""
 set map_bdc_missing(BDC) ""
 
 if { $bCheckSources == 1 } {
    set list_check_srcs "\
-ulp \
+bram_gpio \
+just_bram \
 "
 
    common::send_gid_msg -ssname BD::TCL -id 2056 -severity "INFO" "Checking if the following sources for block design container exist in the project: $list_check_srcs .\n\n"
@@ -167,6 +168,8 @@ ulp \
       if { [can_resolve_reference $src] == 0 } {
          if { [lsearch $list_bdc_active $src] != -1 } {
             set map_bdc_missing(ACTIVE) "$map_bdc_missing(ACTIVE) $src"
+         } elseif { [lsearch $list_bdc_dfx $src] != -1 } {
+            set map_bdc_missing(DFX) "$map_bdc_missing(DFX) $src"
          } else {
             set map_bdc_missing(BDC) "$map_bdc_missing(BDC) $src"
          }
@@ -175,6 +178,11 @@ ulp \
 
    if { [llength $map_bdc_missing(ACTIVE)] > 0 } {
       catch {common::send_gid_msg -ssname BD::TCL -id 2057 -severity "ERROR" "The following source(s) of Active variants are not found in the project: $map_bdc_missing(ACTIVE)" }
+      common::send_gid_msg -ssname BD::TCL -id 2060 -severity "INFO" "Please add source files for the missing source(s) above."
+      set bCheckIPsPassed 0
+   }
+   if { [llength $map_bdc_missing(DFX)] > 0 } {
+      catch {common::send_gid_msg -ssname BD::TCL -id 2058 -severity "ERROR" "The following source(s) of DFX variants are not found in the project: $map_bdc_missing(DFX)" }
       common::send_gid_msg -ssname BD::TCL -id 2060 -severity "INFO" "Please add source files for the missing source(s) above."
       set bCheckIPsPassed 0
    }
@@ -497,22 +505,20 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.PF0_DEVICE_ID {5710} \
     CONFIG.PF0_INTERRUPT_PIN {NONE} \
     CONFIG.PF0_LINK_STATUS_SLOT_CLOCK_CONFIG {true} \
-    CONFIG.PF0_MSIX_CAP_PBA_BIR {BAR_3:2} \
-    CONFIG.PF0_MSIX_CAP_PBA_OFFSET {00008FE0} \
-    CONFIG.PF0_MSIX_CAP_TABLE_BIR {BAR_3:2} \
-    CONFIG.PF0_MSIX_CAP_TABLE_OFFSET {00008000} \
-    CONFIG.PF0_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF0_REVISION_ID {00} \
     CONFIG.PF0_SRIOV_VF_DEVICE_ID {C034} \
     CONFIG.PF0_SUBSYSTEM_ID {000e} \
     CONFIG.PF0_SUBSYSTEM_VENDOR_ID {10EE} \
     CONFIG.PF0_Use_Class_Code_Lookup_Assistant {false} \
+    CONFIG.PF0_MSIX_CAP_PBA_OFFSET {00009FE0} \
+    CONFIG.PF0_MSIX_CAP_TABLE_OFFSET {00009000} \
+    CONFIG.PF0_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF1_DEVICE_ID {5711} \
     CONFIG.PF1_INTERRUPT_PIN {NONE} \
-    CONFIG.PF1_MSIX_CAP_PBA_BIR {BAR_1:0} \
-    CONFIG.PF1_MSIX_CAP_PBA_OFFSET {00009FE0} \
-    CONFIG.PF1_MSIX_CAP_TABLE_BIR {BAR_1:0} \
-    CONFIG.PF1_MSIX_CAP_TABLE_OFFSET {00009000} \
+    CONFIG.PF1_MSIX_CAP_PBA_BIR {BAR_3:2} \
+    CONFIG.PF1_MSIX_CAP_PBA_OFFSET {00008FE0} \
+    CONFIG.PF1_MSIX_CAP_TABLE_BIR {BAR_3:2} \
+    CONFIG.PF1_MSIX_CAP_TABLE_OFFSET {00008000} \
     CONFIG.PF1_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF1_REVISION_ID {00} \
     CONFIG.PF1_SUBSYSTEM_ID {000e} \
@@ -606,6 +612,8 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.pipe_sim {false} \
     CONFIG.sys_reset_polarity {ACTIVE_LOW} \
     CONFIG.vendor_id {10EE} \
+    CONFIG.vfg0_msix_enabled {false} \
+    CONFIG.vfg1_msix_enabled {false} \
     CONFIG.xlnx_ref_board {EMB-PLUS-VPR-4616} \
   ] $pcie
 
@@ -972,7 +980,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
  ] [get_bd_intf_pins /blp/axi_noc_ic/S06_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500}} M05_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
+   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500}} M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4}}} \
    CONFIG.DEST_IDS {M00_AXI:0x80} \
    CONFIG.REMAPS {M02_INI {{0x0080_0000 0x1000_0000 8M}} M00_AXI {{0x000_0000 0x201_0000_0000 8M}}} \
    CONFIG.NOC_PARAMS {} \
@@ -1136,7 +1144,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   set_property -dict [list \
     CONFIG.ADVANCED_PROPERTIES {__view__ { functional { S00_Entry { SUPPORTS_WRAP 0 } } timing { M01_Exit { REGSLICE 0 } S00_Entry { MMU_REGSLICE 0 TR_REGSLICE 0 } M00_Exit { REGSLICE 0 } } }   } \
     CONFIG.NUM_CLKS {2} \
-    CONFIG.NUM_MI {4} \
+    CONFIG.NUM_MI {3} \
     CONFIG.NUM_SI {1} \
   ] $xdma_0_smc
 
@@ -1224,10 +1232,9 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
   connect_bd_intf_net -intf_net xdma_0_pcie_cfg_interrupt [get_bd_intf_pins xdma_0/pcie4_cfg_interrupt] [get_bd_intf_pins xdma_0_support/pcie_cfg_interrupt]
   connect_bd_intf_net -intf_net xdma_0_s_axis_cc [get_bd_intf_pins xdma_0/s_axis_cc] [get_bd_intf_pins xdma_0_support/s_axis_cc]
   connect_bd_intf_net -intf_net xdma_0_s_axis_rq [get_bd_intf_pins xdma_0/s_axis_rq] [get_bd_intf_pins xdma_0_support/s_axis_rq]
-  connect_bd_intf_net -intf_net xdma_0_smc_M00_AXI [get_bd_intf_pins xdma_0_smc/M00_AXI] [get_bd_intf_pins xdma_0/S_AXI_B]
+  connect_bd_intf_net -intf_net xdma_0_smc_M00_AXI [get_bd_intf_pins xdma_0_smc/M00_AXI] [get_bd_intf_pins axi_test_gpio_pf0/S_AXI]
   connect_bd_intf_net -intf_net xdma_0_smc_M01_AXI [get_bd_intf_pins xdma_0_smc/M01_AXI] [get_bd_intf_pins blp_logic/s_axi_mgmt_ctrl]
   connect_bd_intf_net -intf_net xdma_0_smc_M02_AXI [get_bd_intf_pins xdma_0_smc/M02_AXI] [get_bd_intf_pins blp_logic/s_axi_uuid_pcie]
-  connect_bd_intf_net -intf_net xdma_0_smc_M03_AXI [get_bd_intf_pins xdma_0_smc/M03_AXI] [get_bd_intf_pins axi_test_gpio_pf0/S_AXI]
   connect_bd_intf_net -intf_net xdma_0_support_m_axis_cq [get_bd_intf_pins xdma_0/m_axis_cq] [get_bd_intf_pins xdma_0_support/m_axis_cq]
   connect_bd_intf_net -intf_net xdma_0_support_m_axis_rc [get_bd_intf_pins xdma_0/m_axis_rc] [get_bd_intf_pins xdma_0_support/m_axis_rc]
   connect_bd_intf_net -intf_net xdma_0_support_pcie_cfg_fc [get_bd_intf_pins xdma_0/pcie_cfg_fc] [get_bd_intf_pins xdma_0_support/pcie_cfg_fc]
@@ -1331,7 +1338,7 @@ proc create_root_design { parentCell} {
   current_bd_instance $parentObj
 
   set_property -dict [list \
-    SRC_RM_MAP./ulp.ulp {ulp_inst_0} \
+    SRC_RM_MAP./ulp.bram_gpio {bram_gpio_inst_0} \
   ] [get_bd_designs $design_name]
 
 
@@ -1364,13 +1371,13 @@ proc create_root_design { parentCell} {
   create_hier_cell_blp [current_bd_instance .] blp
 
   # Create instance: ulp, and set properties
-  set ulp [ create_bd_cell -type container -reference ulp ulp ]
+  set ulp [ create_bd_cell -type container -reference bram_gpio ulp ]
   set_property -dict [list \
-    CONFIG.ACTIVE_SIM_BD {ulp.bd} \
-    CONFIG.ACTIVE_SYNTH_BD {ulp.bd} \
+    CONFIG.ACTIVE_SIM_BD {bram_gpio.bd} \
+    CONFIG.ACTIVE_SYNTH_BD {bram_gpio.bd} \
     CONFIG.ENABLE_DFX {true} \
-    CONFIG.LIST_SIM_BD {ulp.bd} \
-    CONFIG.LIST_SYNTH_BD {ulp.bd} \
+    CONFIG.LIST_SIM_BD {bram_gpio.bd:just_bram.bd} \
+    CONFIG.LIST_SYNTH_BD {bram_gpio.bd:just_bram.bd} \
     CONFIG.LOCK_PROPAGATE {true} \
   ] $ulp
 
@@ -1415,25 +1422,49 @@ proc create_root_design { parentCell} {
   assign_bd_address -offset 0x00010000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg] -force
   assign_bd_address -offset 0x00020000 -range 0x00010000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg] -force
   assign_bd_address -offset 0x00000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0] -force
-  assign_bd_address -offset 0x00100000 -range 0x00100000 -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0] -force
 
   # Exclude Address Segments
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/LPD_AXI_NOC_0] [get_bd_addr_segs blp/axi_noc_mc_1x/S00_INI/C3_DDR_CH1]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/axi_test_gpio_pf0/S_AXI/Reg]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/base_clocking/force_reset_gpio/S_AXI/Reg]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/uuid_register/S1_AXI/reg0]
-  exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/xdma_0/S_AXI_B/BAR0]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_bypass_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S03_INI/C1_DDR_LOW0]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/xdma_lite_addr_mask/m_axi] [get_bd_addr_segs blp/axi_noc_mc_1x/S02_INI/C0_DDR_CH1]
 
-  # Assign addresses from ULP
-  assign_bd_address
+  # Make active ulp BD just_bram.bd
+  set_property -dict [list \
+    CONFIG.ACTIVE_SIM_BD {just_bram.bd} \
+    CONFIG.ACTIVE_SYNTH_BD {just_bram.bd} \
+  ] [get_bd_cells ulp]
 
-  # Restore current instance
-  current_bd_instance $oldCurInst
+  # Assign for active ulp BD which is just_bram
+  assign_bd_address -offset 0x202_0004_0000 -range 8k -target_address_space [get_bd_addr_spaces /blp/cips/FPD_CCI_NOC_0] [get_bd_addr_segs ulp/axi_bram_ctrl_0/S_AXI/Mem0] -force
+
+  # Now assign the rest based off of these addresses
+  assign_bd_address
 
   validate_bd_design
   save_bd_design
+
+  # Now assign for bram_gpio.bd
+  set_property -dict [list \
+    CONFIG.ACTIVE_SIM_BD {bram_gpio.bd} \
+    CONFIG.ACTIVE_SYNTH_BD {bram_gpio.bd} \
+  ] [get_bd_cells ulp]
+
+  # Assign bram_gpio addresses
+  assign_bd_address -offset 0x202_0003_0000 -range 8k -target_address_space [get_bd_addr_spaces /blp/cips/FPD_CCI_NOC_0] [get_bd_addr_segs ulp/axi_bram_ctrl_0/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x202_0001_0000 -range 4k -target_address_space [get_bd_addr_spaces /blp/cips/FPD_CCI_NOC_0] [get_bd_addr_segs ulp/axi_gpio_0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x202_0002_0000 -range 4k -target_address_space [get_bd_addr_spaces /blp/cips/FPD_CCI_NOC_0] [get_bd_addr_segs ulp/axi_test_gpio_pf1/S_AXI/Reg] -force
+
+  # Now assign the rest based off of these addresses
+  assign_bd_address
+
+  validate_bd_design
+  save_bd_design
+
+  # Restore current instance
+  current_bd_instance $oldCurInst
 
 }
 # End of create_root_design()

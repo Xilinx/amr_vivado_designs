@@ -54,17 +54,6 @@ def buildXSA() {
     '''
 }
 
-def buildDFX() {
-    sh label: 'DFX XSA build',
-    script: '''
-        pushd ${work_dir}/${board}/platforms/${pfm_name}
-        source ${setup} -r ${tool_release} -b ${tool_build} && set -e
-        ${lsf} make all JOBS=32 DFX=${dfx_name}
-        popd
-    '''
-}
-
-
 def deployBaseXSA() {
     sh label: 'base XSA deploy',
     script: '''
@@ -76,19 +65,6 @@ def deployBaseXSA() {
         rsync -avh --delete ${work_dir}/${board}/platforms/${pfm_name}/project ${DSTDIR}/${pfm_name}
     '''
 }
-
-def deployDFX() {
-    sh label: 'DFX XSA deploy',
-    script: '''
-        pushd ${work_dir}/${board}/platforms/${pfm_name}/project
-        DSTDIR=${DEPLOY_DIR}/Vivado_files
-        mkdir -p ${DSTDIR}/${pfm_dfx_name}
-        cp *.xsa ${DSTDIR}/${pfm_dfx_name}
-        pushd ${DSTDIR}/
-        rsync -avh --delete ${work_dir}/${board}/platforms/${pfm_name}/project ${DSTDIR}/${pfm_dfx_name}
-    '''
-}
-
 
 def updateDeploySuccess() {
     sh label: 'update deploy success symlink',
@@ -222,9 +198,9 @@ pipeline {
                 }
             }
             parallel {
-                stage('ve2302_xdma_bram_gpio')  {
+                stage('ve2302_xdma_base')  {
                     environment {
-                        pfm_name="ve2302_xdma_bram_gpio"
+                        pfm_name="ve2302_xdma_base"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     steps {
@@ -271,33 +247,31 @@ pipeline {
         }
         stage('Build Platforms') {
             parallel {
-                stage('ve2302_xdma_bram_gpio')  {
+                stage('ve2302_xdma_base')  {
                     environment {
-                        dfx_name="bram_gpio"
+
                         pfm_name="ve2302_xdma_base"
-                        pfm_base="ve2302_xdma"
-                        pfm_dfx_name="${pfm_base}_${dfx_name}"
                         board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_dfx_name}"
+                        work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
                             changeset "**/platforms/ve2302_xdma_base/**"
-                            changeset "**/dfx/bram_gpio/**"
+                            changeset "**/dfx/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
                         }
                     }
                     steps {
-                        buildDFX()
+                        buildXSA()
                     }
                     post {
                         success {
                             script {
                                 env.VE2302_PFM_SUCCESS = '1'
                             }
-                            deployDFX()
+                            deployBaseXSA()
                         }
                     }
                 }
