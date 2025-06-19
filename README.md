@@ -24,10 +24,11 @@ reconfigurable region.
 
 - ve2302_xdma_base  - Base design for DFX, initially containing the bram_gpio RM.
 
-There is currently only one RM available for this design, but the repo will expand
+There are currently two RMs available for this design, but the repo will expand
 to contain more in the future.
 
 - bram_gpio
+- just_bram
 
 ## Tools Version
 
@@ -48,6 +49,7 @@ emb_plus_vivado_designs
 +-- emb_plus_ve2302
 ¦ +-- dfx
 ¦ ¦  +-- bram_gpio
+¦ ¦  +-- just_bram
 ¦ +-- platforms
 ¦ ¦  +-- scripts
 ¦ ¦  +-- ve2302_1gEth
@@ -60,23 +62,12 @@ emb_plus_vivado_designs
 
 ## Build Instructions
 
-To build the flat designs, run the following from the directory for the platform
+To build any of the designs, run the following from the directory for the platform
 you want to build:
 
 ```
 make all
 ```
-
-To build the DFX design, run the following from ve2302_xdma_base directory:
-
-```
-make all DFX=bram_gpio
-```
-
-Since there is only one DFX module being supported, it defaults to bram_gpio, so the
-DFX=bram_gpio flag can be omitted.  When more DFX modules are supported, pass the
-other flavors in this manner.  The name of the module should match the directory name
-under the dfx subdirectory.
 
 The outputs of the Vivado build will be under project directory for each platform.
 

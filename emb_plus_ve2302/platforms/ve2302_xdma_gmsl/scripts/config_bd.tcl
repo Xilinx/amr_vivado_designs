@@ -445,22 +445,20 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.PF0_DEVICE_ID {5710} \
     CONFIG.PF0_INTERRUPT_PIN {NONE} \
     CONFIG.PF0_LINK_STATUS_SLOT_CLOCK_CONFIG {true} \
-    CONFIG.PF0_MSIX_CAP_PBA_BIR {BAR_3:2} \
-    CONFIG.PF0_MSIX_CAP_PBA_OFFSET {00008FE0} \
-    CONFIG.PF0_MSIX_CAP_TABLE_BIR {BAR_3:2} \
-    CONFIG.PF0_MSIX_CAP_TABLE_OFFSET {00008000} \
-    CONFIG.PF0_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF0_REVISION_ID {00} \
     CONFIG.PF0_SRIOV_VF_DEVICE_ID {C034} \
     CONFIG.PF0_SUBSYSTEM_ID {000e} \
     CONFIG.PF0_SUBSYSTEM_VENDOR_ID {10EE} \
     CONFIG.PF0_Use_Class_Code_Lookup_Assistant {false} \
+    CONFIG.PF0_MSIX_CAP_PBA_OFFSET {00009FE0} \
+    CONFIG.PF0_MSIX_CAP_TABLE_OFFSET {00009000} \
+    CONFIG.PF0_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF1_DEVICE_ID {5711} \
     CONFIG.PF1_INTERRUPT_PIN {NONE} \
-    CONFIG.PF1_MSIX_CAP_PBA_BIR {BAR_1:0} \
-    CONFIG.PF1_MSIX_CAP_PBA_OFFSET {00009FE0} \
-    CONFIG.PF1_MSIX_CAP_TABLE_BIR {BAR_1:0} \
-    CONFIG.PF1_MSIX_CAP_TABLE_OFFSET {00009000} \
+    CONFIG.PF1_MSIX_CAP_PBA_BIR {BAR_3:2} \
+    CONFIG.PF1_MSIX_CAP_PBA_OFFSET {00008FE0} \
+    CONFIG.PF1_MSIX_CAP_TABLE_BIR {BAR_3:2} \
+    CONFIG.PF1_MSIX_CAP_TABLE_OFFSET {00008000} \
     CONFIG.PF1_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF1_REVISION_ID {00} \
     CONFIG.PF1_SUBSYSTEM_ID {000E} \
@@ -554,6 +552,8 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.pipe_sim {false} \
     CONFIG.sys_reset_polarity {ACTIVE_LOW} \
     CONFIG.vendor_id {10EE} \
+    CONFIG.vfg0_msix_enabled {false} \
+    CONFIG.vfg1_msix_enabled {false} \
     CONFIG.xlnx_ref_board {EMB-PLUS-VPR-4616} \
   ] $pcie
 
@@ -1530,6 +1530,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.axil_master_prefetchable {false} \
     CONFIG.axilite_master_size {16} \
     CONFIG.axist_bypass_size {256} \
+    CONFIG.pf_swap {true} \
     CONFIG.enable_gtwizard {false} \
     CONFIG.mode_selection {Advanced} \
     CONFIG.cfg_mgmt_if {false} \
