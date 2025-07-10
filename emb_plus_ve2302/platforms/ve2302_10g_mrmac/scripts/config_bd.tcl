@@ -1028,7 +1028,6 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
     CONFIG.MAC_PORT1_TX_FLOW_C0 {0} \
     CONFIG.MAC_PORT2_RATE_C0 {N/U} \
     CONFIG.MAC_PORT3_RATE_C0 {N/U} \
-    CONFIG.MRMAC_CLIENTS_C0 {1} \
     CONFIG.MRMAC_CONFIGURATION_TYPE {Static Configuration} \
     CONFIG.MRMAC_DATA_PATH_INTERFACE_PORT0_C0 {Independent 32b  Non-Segmented} \
     CONFIG.MRMAC_DATA_PATH_INTERFACE_PORT1_C0 {Independent 32b  Non-Segmented} \
