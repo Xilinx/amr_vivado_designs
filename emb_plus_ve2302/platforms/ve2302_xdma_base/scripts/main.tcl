@@ -84,24 +84,35 @@ close $fd
 # Set the DFX configuration, then run all synthesis and implementation steps
 create_pr_configuration -name config_1 -partitions [list ve2302_xdma_base_i/ulp:bram_gpio_inst_0 ]
 create_pr_configuration -name config_2 -partitions [list ve2302_xdma_base_i/ulp:just_bram_inst_0 ]
+create_pr_configuration -name config_gb -partitions { }  -greyboxes [list ve2302_xdma_base_i/ulp ]
+
 set_property PR_CONFIGURATION config_1 [get_runs impl_1]
 create_run child_0_impl_1 -parent_run impl_1 -flow {Vivado Advanced Implementation 2025} -pr_config config_2
+create_run child_0_impl_2 -parent_run impl_1 -flow {Vivado Advanced Implementation 2025} -pr_config config_gb
 
 #set_property strategy Performance_Auto_3 [get_runs impl_1]
 
 launch_runs impl_1 -to_step write_device_image -jobs $jobs
-launch_runs child_0_impl_1 -to_step write_device_image -jobs $jobs
+launch_runs child_0_impl_* -to_step write_device_image -jobs $jobs
 
 wait_on_run impl_1
 open_run impl_1
-write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}.xsa
-validate_hw_platform -verbose ${proj_dir}/${proj_name}.xsa
+# Just use the partial from bram_gpio
 write_hw_platform -force -fixed -hw -rp ${proj_name}_i/ulp ${proj_dir}/${proj_name}_bram_gpio.xsa
 validate_hw_platform -verbose ${proj_dir}/${proj_name}_bram_gpio.xsa
 
 wait_on_run child_0_impl_1
 open_run child_0_impl_1
+# Just use the partial from just_bram
 write_hw_platform -force -fixed -hw -rp ${proj_name}_i/ulp ${proj_dir}/${proj_name}_just_bram.xsa
 validate_hw_platform -verbose ${proj_dir}/${proj_name}_just_bram.xsa
+
+wait_on_run child_0_impl_2
+open_run child_0_impl_2
+# Use greybox version for initial download (static + greybox RM)
+write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}.xsa
+validate_hw_platform -verbose ${proj_dir}/${proj_name}.xsa
+write_hw_platform -force -fixed -hw -rp ${proj_name}_i/ulp ${proj_dir}/${proj_name}_greybox.xsa
+validate_hw_platform -verbose ${proj_dir}/${proj_name}_greybox.xsa
 
 
