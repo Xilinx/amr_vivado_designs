@@ -55,6 +55,7 @@ set_property APPLY_CONSTRSET 1 [get_runs child_10g_impl_1]
 set_property CONSTRSET constrs_1g [get_runs child_1g_impl_1]
 set_property APPLY_CONSTRSET 1 [get_runs child_1g_impl_1]
 
+set_property strategy Performance_Explore [get_runs impl_1]
 
 launch_runs impl_1 -to_step write_device_image -jobs 10
 wait_on_run impl_1
