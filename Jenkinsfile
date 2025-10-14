@@ -49,7 +49,8 @@ def buildXSA() {
     script: '''
         pushd ${work_dir}/${board}/platforms/${pfm_name}
         source ${setup} -r ${tool_release} -b ${tool_build} && set -e
-        ${lsf} make all JOBS=32
+	bsub -R "select[osdistro==ubuntu&&osver>=2204]" -R "rusage[mem=${PAEG_LSF_MEM}]" -Is -q sil_ssw \
+	make all JOBS=32
         popd
     '''
 }
@@ -61,6 +62,18 @@ def deployBaseXSA() {
         DSTDIR=${DEPLOY_DIR}/Vivado_files
         mkdir -p ${DSTDIR}/${pfm_name}
         cp *.xsa ${DSTDIR}/${pfm_name}
+        pushd ${DSTDIR}/
+        rsync -avh --delete ${work_dir}/${board}/platforms/${pfm_name}/project ${DSTDIR}/${pfm_name}
+    '''
+}
+
+def deployDeb() {
+    sh label: 'Debian package deploy',
+    script: '''
+        pushd ${work_dir}/${board}/platforms/${pfm_name}
+        tree -L 2
+        DSTDIR=${DEPLOY_DIR}/Vivado_files
+        cp *.deb ${DSTDIR}/${pfm_name}
         pushd ${DSTDIR}/
         rsync -avh --delete ${work_dir}/${board}/platforms/${pfm_name}/project ${DSTDIR}/${pfm_name}
     '''
@@ -272,6 +285,7 @@ pipeline {
                                 env.VE2302_PFM_SUCCESS = '1'
                             }
                             deployBaseXSA()
+                            deployDeb()
                         }
                     }
                 }
