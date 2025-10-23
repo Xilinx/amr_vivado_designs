@@ -122,7 +122,7 @@
   ] $axi_noc_fixed_0
 
   set_property -dict [ list \
-   CONFIG.APERTURES {{0x202_0080_0000 4M}} \
+   CONFIG.APERTURES {{0x202_0080_0000 8M}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /axi_noc_fixed_0/M00_AXI]
 
@@ -192,7 +192,7 @@
 
   set_property -dict [ list \
    CONFIG.CATEGORY {pl} \
-   CONFIG.APERTURES {{0x202_0000_0000 4M}} \
+   CONFIG.APERTURES {{0x202_0000_0000 8M}} \
  ] [get_bd_intf_pins /axi_noc_pcie_fixed/M00_AXI]
 
   set_property -dict [ list \

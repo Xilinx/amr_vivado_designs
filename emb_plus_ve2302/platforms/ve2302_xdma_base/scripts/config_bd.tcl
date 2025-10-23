@@ -801,7 +801,7 @@ proc create_hier_cell_STATIC_DESIGN { parentCell nameHier } {
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:gt_rtl:1.0 gt_pciea0
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:inimm_rtl:1.0 M_PL_INI
-  set_property APERTURES {{0x202_0080_0000 4M}} [get_bd_intf_pins /STATIC_DESIGN/M_PL_INI]
+  set_property APERTURES {{0x202_0080_0000 8M}} [get_bd_intf_pins /STATIC_DESIGN/M_PL_INI]
 
   create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:inimm_rtl:1.0 S00_DDR_INI
   set_property APERTURES {{0x0 2G}{0x500_0000_0000 6G}} [get_bd_intf_pins /STATIC_DESIGN/S00_DDR_INI]
@@ -813,7 +813,7 @@ proc create_hier_cell_STATIC_DESIGN { parentCell nameHier } {
   set_property APERTURES {{0x200_0000_0000 4G}} [get_bd_intf_pins /STATIC_DESIGN/M_AIE_INI]
 
   create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:inimm_rtl:1.0 M_PCIE_PL_INI
-  set_property APERTURES {{0x202_0000_0000 4M}} [get_bd_intf_pins /STATIC_DESIGN/M_PCIE_PL_INI]
+  set_property APERTURES {{0x202_0000_0000 8M}} [get_bd_intf_pins /STATIC_DESIGN/M_PCIE_PL_INI]
 
   # Create pins
   create_bd_pin -dir O -type clk dma_axi_aclk
@@ -921,7 +921,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
 
   set_property -dict [ list \
    CONFIG.DATA_WIDTH {32} \
-   CONFIG.APERTURES {{0x201_0000_0000 2G}} \
+   CONFIG.APERTURES {{0x201_0000_0000 8M}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /STATIC_DESIGN/axi_noc_ic/M00_AXI]
 
@@ -1409,8 +1409,8 @@ proc create_root_design { parentCell } {
   set_property APERTURES {{0x200_0000_0000 4G}} [get_bd_intf_pins /DFX_RP/AIE_INI]
   set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_pins /DFX_RP/M00_INI]
   set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_pins /DFX_RP/M01_INI]
-  set_property APERTURES {{0x202_0000_0000 4M}} [get_bd_intf_pins /DFX_RP/PCIE_PL_INI]
-  set_property APERTURES {{0x202_0080_0000 4M}} [get_bd_intf_pins /DFX_RP/S00_INI]
+  set_property APERTURES {{0x202_0000_0000 8M}} [get_bd_intf_pins /DFX_RP/PCIE_PL_INI]
+  set_property APERTURES {{0x202_0080_0000 8M}} [get_bd_intf_pins /DFX_RP/S00_INI]
 
   # Create interface connections
   connect_bd_intf_net -intf_net AIE_INI [get_bd_intf_pins DFX_RP/AIE_INI] [get_bd_intf_pins STATIC_DESIGN/M_AIE_INI]
@@ -1579,8 +1579,8 @@ proc create_root_design { parentCell } {
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces DFX_RP/tieoff_unused/axi_vip_1/Master_AXI] [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S04_INI/C2_DDR_CH1]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces DFX_RP/tieoff_unused/axi_vip_2/Master_AXI] [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S05_INI/C3_DDR_CH1]
 
-validate_bd_design
-save_bd_design
+  validate_bd_design
+  save_bd_design
 
   # Make active DFX_RP_1gEth.bd
   set_property -dict [list \
@@ -1801,12 +1801,12 @@ save_bd_design
 
   # Fix any unassigned segments (due to a bug in Vivado?)
   assign_bd_address
-delete_bd_objs [get_bd_addr_segs -excluded DFX_RP/tieoff_unused/axi_vip_1/Master_AXI/SEG_axi_noc_mc_1x_C2_DDR_CH1]
-delete_bd_objs [get_bd_addr_segs -excluded DFX_RP/tieoff_unused/axi_vip_2/Master_AXI/SEG_axi_noc_mc_1x_C3_DDR_CH1]
-exclude_bd_addr_seg [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S04_INI/C2_DDR_CH1] -target_address_space [get_bd_addr_spaces DFX_RP/tieoff_unused/axi_vip_1/Master_AXI]
-delete_bd_objs [get_bd_addr_segs DFX_RP/tieoff_unused/axi_vip_2/Master_AXI/SEG_axi_noc_mc_1x_C3_DDR_LOW0]
-exclude_bd_addr_seg [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S05_INI/C3_DDR_LOW0] -target_address_space [get_bd_addr_spaces DFX_RP/tieoff_unused/axi_vip_2/Master_AXI]
-assign_bd_address -target_address_space /DFX_RP/tieoff_unused/axi_vip_2/Master_AXI [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S05_INI/C3_DDR_CH1] -force
+  delete_bd_objs [get_bd_addr_segs -excluded DFX_RP/tieoff_unused/axi_vip_1/Master_AXI/SEG_axi_noc_mc_1x_C2_DDR_CH1]
+  delete_bd_objs [get_bd_addr_segs -excluded DFX_RP/tieoff_unused/axi_vip_2/Master_AXI/SEG_axi_noc_mc_1x_C3_DDR_CH1]
+  exclude_bd_addr_seg [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S04_INI/C2_DDR_CH1] -target_address_space [get_bd_addr_spaces DFX_RP/tieoff_unused/axi_vip_1/Master_AXI]
+  delete_bd_objs [get_bd_addr_segs DFX_RP/tieoff_unused/axi_vip_2/Master_AXI/SEG_axi_noc_mc_1x_C3_DDR_LOW0]
+  exclude_bd_addr_seg [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S05_INI/C3_DDR_LOW0] -target_address_space [get_bd_addr_spaces DFX_RP/tieoff_unused/axi_vip_2/Master_AXI]
+  assign_bd_address -target_address_space /DFX_RP/tieoff_unused/axi_vip_2/Master_AXI [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S05_INI/C3_DDR_CH1] -force
 
 
   validate_bd_design
