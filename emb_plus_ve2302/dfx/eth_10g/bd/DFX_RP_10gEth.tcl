@@ -815,6 +815,7 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
     CONFIG.PORT3_1588v2_Clocking_C0 {Ordinary/Boundary Clock} \
     CONFIG.PORT3_1588v2_Operation_MODE_C0 {No operation} \
     CONFIG.TIMESTAMP_CLK_PERIOD_NS {4.0000} \
+    CONFIG.MRMAC_IS_GT_WIZ_OLD {1} \
   ] $mrmac_10g_156_core
 
 
