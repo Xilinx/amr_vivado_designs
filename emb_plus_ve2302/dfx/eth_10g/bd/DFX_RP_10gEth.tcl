@@ -822,9 +822,11 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
   # Create instance: axi_gpio_reset_mask, and set properties
   set axi_gpio_reset_mask [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio axi_gpio_reset_mask ]
   set_property -dict [list \
-    CONFIG.C_ALL_INPUTS {1} \
-    CONFIG.C_GPIO_WIDTH {8} \
-    CONFIG.C_IS_DUAL {0} \
+	  CONFIG.C_ALL_INPUTS {0} \
+	  CONFIG.C_ALL_INPUTS_2 {1} \
+	  CONFIG.C_ALL_OUTPUTS {0} \
+	  CONFIG.C_GPIO2_WIDTH {8} \
+	  CONFIG.C_IS_DUAL {1} \
   ] $axi_gpio_reset_mask
 
 
@@ -1421,7 +1423,7 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
   [get_bd_pins tx_mst_dp_rst_ch0/Din] \
   [get_bd_pins tx_mst_dp_rst_ch1/Din]
   connect_bd_net -net xlconcat_rst_done_dout  [get_bd_pins xlconcat_rst_done/dout] \
-  [get_bd_pins axi_gpio_reset_mask/gpio_io_i]
+  [get_bd_pins axi_gpio_reset_mask/gpio2_io_i]
   connect_bd_net -net xlconcat_rx_usr_rdy_dout  [get_bd_pins xlconcat_rx_usr_rdy/dout] \
   [get_bd_pins rx_usr_rdy_ch0/Din] \
   [get_bd_pins rx_usr_rdy_ch1/Din]
