@@ -32,7 +32,7 @@ to contain more in the future.
 
 ## Tools Version
 
-This branch is targeting the Vivado 2025.2 tools.
+This branch is targeting the Vivado 2026.1 tools.
 
 ## Instructions
 
