@@ -1124,8 +1124,8 @@ proc create_hier_cell_MRMAC_GT { parentCell nameHier } {
   set mrmac_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:mrmac mrmac_0 ]
   set_property -dict [list \
     CONFIG.GT_REF_CLK_FREQ_C0 {156.25} \
-    CONFIG.MAC_PORT0_RATE_C0 {25GE} \
-    CONFIG.MAC_PORT1_RATE_C0 {25GE} \
+    CONFIG.MAC_PORT0_RATE_C0 {10GE} \
+    CONFIG.MAC_PORT1_RATE_C0 {10GE} \
     CONFIG.MAC_PORT2_RATE_C0 {N/U} \
     CONFIG.MAC_PORT3_RATE_C0 {N/U} \
     CONFIG.MRMAC_MODE_C0 {MAC+PCS} \
