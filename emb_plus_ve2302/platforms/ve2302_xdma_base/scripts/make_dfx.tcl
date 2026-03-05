@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Advanced Micro Devices, Inc.
+# Copyright (C) 2025 - 2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 current_bd_design [get_bd_designs ${proj_name}]
@@ -61,9 +61,9 @@ launch_runs impl_1 -to_step write_device_image -jobs 10
 wait_on_run impl_1
 
 
-launch_runs child_1g_impl_1 child_10g_impl_1 child_bram_impl_1 -to_step write_device_image -jobs 10
+launch_runs child_1g_impl_1 child_10g_impl_1 child_bram_impl_1 child_grey_impl_1 -to_step write_device_image -jobs 10
 
-wait_on_run child_1g_impl_1 child_10g_impl_1 child_bram_impl_1
+wait_on_run child_1g_impl_1 child_10g_impl_1 child_bram_impl_1 child_grey_impl_1
 
 # Store partial PDIs in a subdirectory for deb generation (erase old directory if exists)
 if {[file isdirectory ${proj_dir}/partial_pdis]} {
@@ -71,12 +71,6 @@ if {[file isdirectory ${proj_dir}/partial_pdis]} {
 }
 file mkdir ${proj_dir}/partial_pdis
 
-# Workaround for DFX_RP timing constraints being applied to greybox
-#set_msg_config -suppress -string {{set_output_delay}}
-set_property GEN_REPORTS_PARALLEL 0 [get_runs child_grey_impl_1]
-
-launch_runs child_grey_impl_1 -to_step write_device_image -jobs 10
-wait_on_run child_grey_impl_1
 open_run child_grey_impl_1
 # Use greybox version for initial download (static + greybox RM)
 write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}.xsa
@@ -103,4 +97,3 @@ write_hw_platform -force -fixed -hw -rp ${proj_name}_i/DFX_RP ${proj_dir}/${proj
 validate_hw_platform -verbose ${proj_dir}/${proj_name}_bram_gpio.xsa
 file copy [glob  ${proj_dir}/${proj_name}.runs/child_bram_impl_1/*_partial.pdi] ${proj_dir}/partial_pdis/bram_gpio_partial.pdi
 
-#reset_msg_config -ruleid {3} -suppress
