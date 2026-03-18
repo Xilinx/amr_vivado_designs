@@ -152,7 +152,7 @@ pipeline {
         BUILD_DATE=sh(script: 'date +"%m%d%H%M" | tr -d "\n"', returnStdout: true)
         BUILD_ID="${env.BRANCH_NAME == env.deploy_branch ? env.BUILD_DATE : env.BRANCH_NAME}"
         HOSTS="localhost"
-        PAEG_BASE_DIR="/wrk/paeg_builds/build-artifacts/emb-plus-vivado-designs/${tool_release}"
+        PAEG_BASE_DIR="/wrk/paeg_builds/build-artifacts/amr-vivado-designs/${tool_release}"
         DEPLOY_BASE_DIR="${env.PAEG_BASE_DIR}"
         DEPLOY_DIR="${DEPLOY_BASE_DIR}/${BUILD_ID}"
         DEPLOY_MAX=15
@@ -220,36 +220,9 @@ pipeline {
                         createWorkDir()
                     }
                 }
-                stage('ve2302_10g_mrmac')  {
+                stage('v80_base')  {
                     environment {
-                        pfm_name="ve2302_10g_mrmac"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    steps {
-                        createWorkDir()
-                    }
-                }
-                stage('ve2302_1gEth')  {
-                    environment {
-                        pfm_name="ve2302_1gEth"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    steps {
-                        createWorkDir()
-                    }
-                }
-                stage('ve2302_gmsl')  {
-                    environment {
-                        pfm_name="ve2302_gmsl"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    steps {
-                        createWorkDir()
-                    }
-                }
-                stage('ve2302_xdma_gmsl')  {
-                    environment {
-                        pfm_name="ve2302_xdma_gmsl"
+                        pfm_name="v80_base"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     steps {
@@ -289,15 +262,16 @@ pipeline {
                         }
                     }
                 }
-                stage('ve2302_1gEth build')  {
+                stage('v80_base')  {
                     environment {
-                        pfm_name="ve2302_1gEth"
-                        board="emb_plus_ve2302"
+
+                        pfm_name="v80_base"
+                        board="alveo_v80"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/ve2302_1gEth/**"
+                            changeset "**/v80_base/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
@@ -309,87 +283,8 @@ pipeline {
                     post {
                         success {
                             script {
-                                env.VE2302_PFM_SUCCESS = '1'
+                                env.V80_PFM_SUCCESS = '1'
                             }
-                            deployBaseXSA()
-                        }
-                    }
-                }
-                stage('ve2302_10g_mrmac platform build')  {
-                    environment {
-                        pfm_name="ve2302_10g_mrmac"
-                        board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/platforms/ve2302_10g_mrmac/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                            expression { true }
-                        }
-                    }
-                    steps {
-                        buildXSA()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_PFM_SUCCESS = '1'
-                            }
-                            deployBaseXSA()
-                        }
-                    }
-                }
-                stage('ve2302_gmsl platform build')  {
-                    environment {
-                        pfm_name="ve2302_gmsl"
-                        board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/platforms/ve2302_gmsl/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                            expression { true }
-                        }
-                    }
-                    steps {
-                        buildXSA()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_PFM_SUCCESS = '1'
-                            }
-                            deployBaseXSA()
-                        }
-                    }
-                }
-                stage('ve2302_xdma_gmsl platform build')  {
-                    environment {
-                        pfm_name="ve2302_xdma_gmsl"
-                        board="emb_plus_ve2302"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/platforms/ve2302_xdma_gmsl/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                            expression { true }
-                        }
-                    }
-                    steps {
-                        buildXSA()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_PFM_SUCCESS = '1'
-                            }
-                            deployBaseXSA()
                         }
                     }
                 }
