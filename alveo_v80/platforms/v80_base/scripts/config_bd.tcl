@@ -455,9 +455,9 @@ proc create_root_design { parentCell } {
       PS_BANK_2_IO_STANDARD {LVCMOS3.3} \
       PS_BOARD_INTERFACE {Custom} \
       PS_CRL_CPM_TOPSW_REF_CTRL_FREQMHZ {1000} \
-      PS_GEN_IPI0_ENABLE {0} \
-      PS_GEN_IPI1_ENABLE {0} \
-      PS_GEN_IPI2_ENABLE {0} \
+      PS_GEN_IPI0_ENABLE {1} \
+      PS_GEN_IPI1_ENABLE {1} \
+      PS_GEN_IPI2_ENABLE {1} \
       PS_GEN_IPI3_ENABLE {1} \
       PS_GEN_IPI3_MASTER {R5_0} \
       PS_GEN_IPI4_ENABLE {1} \
