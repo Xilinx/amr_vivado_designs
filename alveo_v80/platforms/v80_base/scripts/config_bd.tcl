@@ -331,7 +331,7 @@ proc create_root_design { parentCell } {
     CONFIG.CPM_CONFIG { \
       CPM_PCIE0_MODES {None} \
       CPM_PCIE1_ACS_CAP_ON {0} \
-      CPM_PCIE1_ARI_CAP_ENABLED {0} \
+      CPM_PCIE1_ARI_CAP_ENABLED {1} \
       CPM_PCIE1_CFG_EXT_IF {0} \
       CPM_PCIE1_CFG_VEND_ID {10ee} \
       CPM_PCIE1_COPY_PF0_QDMA_ENABLED {0} \
@@ -357,7 +357,7 @@ proc create_root_design { parentCell } {
       CPM_PCIE1_PF0_BAR0_QDMA_ENABLED {1} \
       CPM_PCIE1_PF0_BAR0_QDMA_PREFETCHABLE {0} \
       CPM_PCIE1_PF0_BAR0_QDMA_SCALE {Megabytes} \
-      CPM_PCIE1_PF0_BAR0_QDMA_SIZE {16} \
+      CPM_PCIE1_PF0_BAR0_QDMA_SIZE {8} \
       CPM_PCIE1_PF0_BAR0_QDMA_TYPE {AXI_Bridge_Master} \
       CPM_PCIE1_PF0_BAR2_QDMA_64BIT {0} \
       CPM_PCIE1_PF0_BAR2_QDMA_ENABLED {0} \
@@ -372,19 +372,21 @@ proc create_root_design { parentCell } {
       CPM_PCIE1_PF0_MSIX_CAP_TABLE_OFFSET {40} \
       CPM_PCIE1_PF0_MSIX_CAP_TABLE_SIZE {1} \
       CPM_PCIE1_PF0_MSIX_ENABLED {0} \
-      CPM_PCIE1_PF0_PCIEBAR2AXIBAR_QDMA_0 {0x0000020100000000} \
+      CPM_PCIE1_PF0_PCIEBAR2AXIBAR_QDMA_0 {0x0000020100800000} \
       CPM_PCIE1_PF0_SUB_CLASS_VALUE {00} \
       CPM_PCIE1_PF1_BAR0_QDMA_64BIT {1} \
       CPM_PCIE1_PF1_BAR0_QDMA_ENABLED {1} \
       CPM_PCIE1_PF1_BAR0_QDMA_PREFETCHABLE {1} \
       CPM_PCIE1_PF1_BAR0_QDMA_SCALE {Kilobytes} \
       CPM_PCIE1_PF1_BAR0_QDMA_SIZE {512} \
+      CPM_PCIE1_PF1_BAR0_QDMA_STEERING {CPM_PCIE_NOC_1} \
       CPM_PCIE1_PF1_BAR0_QDMA_TYPE {DMA} \
       CPM_PCIE1_PF1_BAR2_QDMA_64BIT {1} \
       CPM_PCIE1_PF1_BAR2_QDMA_ENABLED {1} \
       CPM_PCIE1_PF1_BAR2_QDMA_PREFETCHABLE {1} \
       CPM_PCIE1_PF1_BAR2_QDMA_SCALE {Megabytes} \
       CPM_PCIE1_PF1_BAR2_QDMA_SIZE {256} \
+      CPM_PCIE1_PF1_BAR2_QDMA_STEERING {CPM_PCIE_NOC_1} \
       CPM_PCIE1_PF1_BAR2_QDMA_TYPE {AXI_Bridge_Master} \
       CPM_PCIE1_PF1_BASE_CLASS_VALUE {12} \
       CPM_PCIE1_PF1_CFG_DEV_ID {50b5} \
@@ -559,7 +561,7 @@ proc create_root_design { parentCell } {
     CONFIG.HBM_REF_CLK_SELECTION {External} \
     CONFIG.NUM_CLKS {9} \
     CONFIG.NUM_HBM_BLI {0} \
-    CONFIG.NUM_MI {2} \
+    CONFIG.NUM_MI {1} \
     CONFIG.NUM_NMI {4} \
     CONFIG.NUM_NSI {0} \
     CONFIG.NUM_SI {8} \
@@ -568,27 +570,22 @@ proc create_root_design { parentCell } {
 
   set_property -dict [ list \
    CONFIG.DATA_WIDTH {32} \
-   CONFIG.APERTURES {{0x201_0000_0000 16M}} \
+   CONFIG.APERTURES {{0x202_0000_0000 1G}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /axi_noc_cips/M00_AXI]
 
   set_property -dict [ list \
-   CONFIG.APERTURES {{0x202_0000_0000 1G}} \
-   CONFIG.CATEGORY {pl} \
- ] [get_bd_intf_pins /axi_noc_cips/M01_AXI]
-
-  set_property -dict [ list \
-   CONFIG.CONNECTIONS {HBM10_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M02_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true} } HBM15_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M01_AXI {read_bw {5} write_bw {5} read_avg_burst {64} write_avg_burst {64} } HBM10_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM5_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM15_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM5_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM1_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM1_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM6_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM12_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM0_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM6_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM14_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM12_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM0_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM8_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM8_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM14_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM3_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM3_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM4_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM4_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM9_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM2_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM11_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M00_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true} } HBM9_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM11_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM7_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM13_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM7_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM13_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM2_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} }} \
+   CONFIG.CONNECTIONS {HBM10_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M02_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true} } HBM15_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM10_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM5_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM15_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM5_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM1_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM1_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM6_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM12_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM0_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM6_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM14_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM12_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM0_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM8_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM8_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM14_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM3_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM3_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM4_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM4_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM9_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM2_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM11_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M00_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true} } HBM9_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM11_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM7_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM13_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM7_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM13_PORT0 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM2_PORT2 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} }} \
    CONFIG.DEST_IDS {} \
-   CONFIG.REMAPS {M00_INI {{0x201_0000_0000 0x1000_0000 16M}}} \
+   CONFIG.REMAPS {M00_INI {{0x201_0080_0000 0x1000_0000 8M}}} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_pcie} \
  ] [get_bd_intf_pins /axi_noc_cips/S00_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M01_AXI {read_bw {5} write_bw {5} read_avg_burst {64} write_avg_burst {64}} M01_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true}} M03_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true}} HBM0_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM0_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM1_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM1_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM2_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM2_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM3_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM3_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM4_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM4_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM5_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM5_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM6_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM6_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM7_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM7_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM8_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM8_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM9_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM9_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM10_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM10_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM11_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM11_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM12_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM12_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM13_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM13_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM14_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM14_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM15_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}} HBM15_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true}}} \
+   CONFIG.CONNECTIONS {HBM10_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM10_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM5_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM15_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM0_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM15_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM1_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM5_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM1_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M01_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true} } HBM0_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM6_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM8_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM14_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM12_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM6_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM12_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM8_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM14_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM3_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM3_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM4_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM9_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM4_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM9_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM11_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM11_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM7_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM13_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM7_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } HBM2_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M03_INI {read_bw {800} write_bw {800} read_avg_burst {64} write_avg_burst {64} initial_boot {true} } HBM2_PORT1 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } HBM13_PORT3 {read_bw {250} write_bw {250} read_avg_burst {4} write_avg_burst {4} initial_boot {true} }} \
    CONFIG.DEST_IDS {} \
-   CONFIG.REMAPS {M01_INI {{0x201_0000_0000 0x1000_0000 16M}}} \
+   CONFIG.REMAPS {} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_pcie} \
  ] [get_bd_intf_pins /axi_noc_cips/S01_AXI]
@@ -608,28 +605,28 @@ proc create_root_design { parentCell } {
  ] [get_bd_intf_pins /axi_noc_cips/S03_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500} initial_boot {true} } M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_INI {read_bw {500} write_bw {500} initial_boot {true} }} \
+   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_INI {read_bw {500} write_bw {500} initial_boot {true} }} \
    CONFIG.DEST_IDS {} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_cci} \
  ] [get_bd_intf_pins $axi_noc_cips/S04_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M01_INI {read_bw {500} write_bw {500} initial_boot {true} } M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M03_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} }} \
+   CONFIG.CONNECTIONS {M01_INI {read_bw {500} write_bw {500} initial_boot {true} } M03_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} }} \
    CONFIG.DEST_IDS {} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_cci} \
  ] [get_bd_intf_pins $axi_noc_cips/S05_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500} initial_boot {true} } M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_INI {read_bw {500} write_bw {500} initial_boot {true} }} \
+   CONFIG.CONNECTIONS {M02_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M00_INI {read_bw {500} write_bw {500} initial_boot {true} }} \
    CONFIG.DEST_IDS {} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_cci} \
  ] [get_bd_intf_pins $axi_noc_cips/S06_AXI]
 
   set_property -dict [ list \
-   CONFIG.CONNECTIONS {M01_INI {read_bw {500} write_bw {500} initial_boot {true} } M01_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} } M03_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} }} \
+   CONFIG.CONNECTIONS {M01_INI {read_bw {500} write_bw {500} initial_boot {true} } M03_INI {read_bw {500} write_bw {500} initial_boot {true} } M00_AXI {read_bw {500} write_bw {500} read_avg_burst {4} write_avg_burst {4} }} \
    CONFIG.DEST_IDS {} \
    CONFIG.NOC_PARAMS {} \
    CONFIG.CATEGORY {ps_cci} \
@@ -753,8 +750,8 @@ proc create_root_design { parentCell } {
   create_hier_cell_PF1 [current_bd_instance .] PF1
 
   # Create interface connections
+  connect_bd_intf_net -intf_net axi_noc_cips_M00_AXI [get_bd_intf_pins axi_noc_cips/M00_AXI] [get_bd_intf_pins PF1/S00_AXI]
   connect_bd_intf_net -intf_net axi_noc_cips_M00_INI [get_bd_intf_pins axi_noc_cips/M00_INI] [get_bd_intf_pins axi_noc_mc_ddr4_0/S00_INI]
-  connect_bd_intf_net -intf_net axi_noc_cips_M01_AXI [get_bd_intf_pins PF1/S00_AXI] [get_bd_intf_pins axi_noc_cips/M01_AXI]
   connect_bd_intf_net -intf_net axi_noc_cips_M01_INI [get_bd_intf_pins axi_noc_cips/M01_INI] [get_bd_intf_pins axi_noc_mc_ddr4_0/S01_INI]
   connect_bd_intf_net -intf_net axi_noc_cips_M02_INI [get_bd_intf_pins axi_noc_cips/M02_INI] [get_bd_intf_pins axi_noc_mc_ddr4_1/S00_INI]
   connect_bd_intf_net -intf_net axi_noc_cips_M03_INI [get_bd_intf_pins axi_noc_cips/M03_INI] [get_bd_intf_pins axi_noc_mc_ddr4_1/S01_INI]
@@ -803,7 +800,6 @@ proc create_root_design { parentCell } {
   [get_bd_pins axi_noc_cips/aclk2]
 
   # Create address segments
-  assign_bd_address -offset 0x020200020000 -range 0x00001000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs PF1/axi_gpio_test_pf1/S_AXI/Reg] -force
   assign_bd_address -offset 0x004000000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM0_PC0] -force
   assign_bd_address -offset 0x004040000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM0_PC1] -force
   assign_bd_address -offset 0x004500000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM10_PC0] -force
@@ -836,7 +832,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x004440000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM8_PC1] -force
   assign_bd_address -offset 0x004480000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM9_PC0] -force
   assign_bd_address -offset 0x0044C0000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM9_PC1] -force
-  assign_bd_address -offset 0x020100000000 -range 0x01000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_LOW0] -force
+  assign_bd_address -offset 0x020100800000 -range 0x00800000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x060000000000 -range 0x000800000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_1/S00_INI/C0_DDR_CH2] -force
   assign_bd_address -offset 0x020200020000 -range 0x00001000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs PF1/axi_gpio_test_pf1/S_AXI/Reg] -force
   assign_bd_address -offset 0x004000000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_cips/S01_AXI/HBM0_PC0] -force
@@ -871,7 +867,8 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x004440000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_cips/S01_AXI/HBM8_PC1] -force
   assign_bd_address -offset 0x004480000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_cips/S01_AXI/HBM9_PC0] -force
   assign_bd_address -offset 0x0044C0000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_cips/S01_AXI/HBM9_PC1] -force
-  assign_bd_address -offset 0x020100000000 -range 0x01000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_mc_ddr4_0/S01_INI/C1_DDR_LOW0] -force
+  assign_bd_address -offset 0x050080000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_mc_ddr4_0/S01_INI/C1_DDR_CH1] -force
+  assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_mc_ddr4_0/S01_INI/C1_DDR_LOW0] -force
   assign_bd_address -offset 0x060000000000 -range 0x000800000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_mc_ddr4_1/S01_INI/C1_DDR_CH2] -force
   assign_bd_address -offset 0x020200020000 -range 0x00001000 -target_address_space [get_bd_addr_spaces cips/FPD_CCI_NOC_0] [get_bd_addr_segs PF1/axi_gpio_test_pf1/S_AXI/Reg] -force
   assign_bd_address -offset 0x050080000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/FPD_CCI_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_CH1] -force
@@ -896,7 +893,6 @@ proc create_root_design { parentCell } {
 
   # Exclude Address Segments
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_CH1]
-  exclude_bd_addr_seg -offset 0x050080000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_1] [get_bd_addr_segs axi_noc_mc_ddr4_0/S01_INI/C1_DDR_CH1]
   exclude_bd_addr_seg -offset 0x050080000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/LPD_AXI_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_CH1]
 
 
