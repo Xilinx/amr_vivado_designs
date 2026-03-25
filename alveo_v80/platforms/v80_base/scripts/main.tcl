@@ -36,7 +36,7 @@ add_files -fileset constrs_1 $xdc_list
 set_property ip_repo_paths $ip_repo_path [current_project]
 update_ip_catalog
 
-  set_property segmented_configuration true [current_project]
+set_property segmented_configuration true [current_project]
 source $bd_tcl_dir/config_bd.tcl
 
 # Import constraint and hook files, and set their properties as required
@@ -82,7 +82,7 @@ foreach ip [get_ips] {
 
 close $fd
 
-#set_property strategy Performance_Auto_3 [get_runs impl_1]
+set_property strategy Performance_Auto_3 [get_runs impl_1]
 
 launch_runs impl_1 -to_step write_device_image -jobs $jobs
 wait_on_run impl_1
