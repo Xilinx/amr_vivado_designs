@@ -6,7 +6,7 @@ set proj_dir ./project
 set board emb_plus_ve2302
 set bd_tcl_dir ./scripts
 set dfx_dir ../../dfx
-set ip_dir_list [list ./ip $dfx_dir/eth_10g/ip]
+set ip_dir_list [list ../ip $dfx_dir/eth_10g/ip]
 set output_dir ./xsa
 set output {xsa}
 set static_xdc_list [list ./xdc/pcie.xdc ]
