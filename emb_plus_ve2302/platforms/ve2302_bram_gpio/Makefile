@@ -13,7 +13,7 @@ VIV_PRJ_DIR = project
 VIV_SCRIPTS_DIR = scripts
 
 VIV_TIMING_ERROR = "CRITICAL WARNING: \[Timing 38-282\] The design failed to meet the timing requirements"
-VIV_DESIGN = ve2302_xdma_base
+VIV_DESIGN = ve2302_bram_gpio
 VIV_XSA = $(VIV_PRJ_DIR)/$(VIV_DESIGN).xsa
 VIV_SRC = $(VIV_SCRIPTS_DIR)/main.tcl
 VIV_CONFIG = $(VIV_SCRIPTS_DIR)/config_bd.tcl
@@ -88,7 +88,7 @@ $(DEB_FILES_LIST): $(DFX_FILES_LIST)
 		IFS=$$OLD_IFS; \
 		BUILD_DIR="`echo amr-$$EXAMPLE-dma-test-$(BOARD)`"; \
 		echo "BUILD_DIR = $$BUILD_DIR"; \
-		DEB_DIR="`echo $$BUILD_DIR/opt/xilinx/firmware/emb_plus/ve2302_xdma_base/base/test/`"; \
+		DEB_DIR="`echo $$BUILD_DIR/opt/xilinx/firmware/emb_plus/ve2302_bram_gpio/base/test/`"; \
 		echo "DEB_DIR = $$DEB_DIR"; \
 		mkdir -p $$DEB_DIR; \
 		mkdir -p $$BUILD_DIR/DEBIAN; \
