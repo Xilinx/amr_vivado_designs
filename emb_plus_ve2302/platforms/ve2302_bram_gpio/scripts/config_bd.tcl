@@ -898,7 +898,7 @@ connect_bd_intf_net [get_bd_intf_pins ch1_lpddr4_trip1] [get_bd_intf_pins axi_no
     CONFIG.pf0_bar0_64bit {true} \
     CONFIG.pf0_bar0_prefetchable {false} \
     CONFIG.pf0_bar0_scale {Megabytes} \
-    CONFIG.pf0_bar0_size {16} \
+    CONFIG.pf0_bar0_size {8} \
     CONFIG.pf0_base_class_menu {Memory_controller} \
     CONFIG.pf0_class_code_base {12} \
     CONFIG.pf0_class_code_sub {00} \
@@ -1100,7 +1100,7 @@ proc create_root_design { parentCell } {
 
 # Aperture Settings between STATIC_DESIGN and DFX_RP
   set_property SELECTED_SIM_MODEL rtl  $DFX_RP
-  set_property APERTURES {{0x202_0000_0000 16M}} [get_bd_intf_pins /DFX_RP/PCIE_PL_INI]
+  set_property APERTURES {{0x202_0000_0000 8M}} [get_bd_intf_pins /DFX_RP/PCIE_PL_INI]
 
   # Create interface connections
   connect_bd_intf_net -intf_net PCIE_PL_INI [get_bd_intf_pins DFX_RP/PCIE_PL_INI] [get_bd_intf_pins STATIC_DESIGN/M_PCIE_PL_INI]
@@ -1125,7 +1125,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces STATIC_DESIGN/cips/PMC_NOC_AXI_0] [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S01_INI/C2_DDR_LOW0] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces STATIC_DESIGN/xdma_0/M_AXI] [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S00_INI/C3_DDR_LOW0] -force
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces STATIC_DESIGN/xdma_0/M_AXI_BYPASS] [get_bd_addr_segs STATIC_DESIGN/xdma_bypass_addr_mask/s_axi/reg0] -force
-  assign_bd_address -offset 0x00000000 -range 0x01000000 -target_address_space [get_bd_addr_spaces STATIC_DESIGN/xdma_0/M_AXI_LITE] [get_bd_addr_segs STATIC_DESIGN/xdma_lite_addr_mask/s_axi/reg0] -force
+  assign_bd_address -offset 0x00000000 -range 0x00800000 -target_address_space [get_bd_addr_spaces STATIC_DESIGN/xdma_0/M_AXI_LITE] [get_bd_addr_segs STATIC_DESIGN/xdma_lite_addr_mask/s_axi/reg0] -force
 
   # DDR HIGH
   assign_bd_address -offset 0x050000000000 -range 0x000180000000 -target_address_space [get_bd_addr_spaces STATIC_DESIGN/cips/FPD_CCI_NOC_0] [get_bd_addr_segs STATIC_DESIGN/axi_noc_mc_1x/S00_INI/C3_DDR_CH1] -force
