@@ -110,7 +110,7 @@ $(DEB_FILES_LIST): $(DFX_FILES_LIST)
 
 .PHONY: clean
 clean:
-	$(RM) $(VIV_PRJ_DIR) vivado* .Xil *dynamic* *.log *.xpe .crashReporter hd_visual *.swp
+	$(RM) $(VIV_PRJ_DIR) vivado* .Xil *dynamic* *.log* *.xpe .crashReporter hd_visual *.swp
 	$(RM) $(VIV_SDT) $(BUILD_DIR) $(DEB_FILE)
 	@for item in $(COMBINED_LIST); do \
 		IFS=':' read -r DFX EXAMPLE DFX_FILE DEB_FILE <<< "$$item"; \

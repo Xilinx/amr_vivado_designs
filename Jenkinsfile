@@ -220,9 +220,9 @@ pipeline {
                         createWorkDir()
                     }
                 }
-                stage('ve2302_bram_gpio')  {
+                stage('ve2302_amr_base')  {
                     environment {
-                        pfm_name="ve2302_bram_gpio"
+                        pfm_name="ve2302_amr_base"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     steps {
@@ -270,15 +270,15 @@ pipeline {
                         }
                     }
                 }
-                stage('ve2302_bram_gpio')  {
+                stage('ve2302_amr_base')  {
                     environment {
-                        pfm_name="ve2302_bram_gpio"
+                        pfm_name="ve2302_amr_base"
                         board="emb_plus_ve2302"
                         work_dir="${ws}/build/${pfm_name}"
                     }
                     when {
                         anyOf {
-                            changeset "**/platforms/ve2302_bram_gpio/**"
+                            changeset "**/platforms/ve2302_amr_base/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
