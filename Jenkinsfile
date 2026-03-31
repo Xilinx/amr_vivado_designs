@@ -220,6 +220,15 @@ pipeline {
                         createWorkDir()
                     }
                 }
+                stage('ve2302_bram_gpio')  {
+                    environment {
+                        pfm_name="ve2302_bram_gpio"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
                 stage('v80_base')  {
                     environment {
                         pfm_name="v80_base"
@@ -235,7 +244,6 @@ pipeline {
             parallel {
                 stage('ve2302_xdma_base')  {
                     environment {
-
                         pfm_name="ve2302_xdma_base"
                         board="emb_plus_ve2302"
                         work_dir="${ws}/build/${pfm_name}"
@@ -244,6 +252,33 @@ pipeline {
                         anyOf {
                             changeset "**/platforms/ve2302_xdma_base/**"
                             changeset "**/dfx/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
+                            expression { true }
+                        }
+                    }
+                    steps {
+                        buildXSA()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_PFM_SUCCESS = '1'
+                            }
+                            deployBaseXSA()
+                            deployDeb()
+                        }
+                    }
+                }
+                stage('ve2302_bram_gpio')  {
+                    environment {
+                        pfm_name="ve2302_bram_gpio"
+                        board="emb_plus_ve2302"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/platforms/ve2302_bram_gpio/**"
                             triggeredBy 'TimerTrigger'
                             triggeredBy 'UserIdCause'
                             expression { true }
