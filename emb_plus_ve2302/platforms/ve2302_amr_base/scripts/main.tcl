@@ -5,13 +5,14 @@
 set proj_dir ./project
 set board emb_plus_ve2302
 set bd_tcl_dir ./scripts
+set dfx_dir ./dfx
 set ip_dir_list [list ../ip]
 set output_dir ./xsa
 set output {xsa}
 set static_xdc_list [list ./xdc/pcie.xdc ]
 set pblock_xdc [list ./xdc/pblock.xdc]
 set part xcve2302-sfva784-2MP-e-S
-set proj_name ve2302_bram_gpio
+set proj_name ve2302_amr_base
 set proj_board [get_board_parts "*:emb-plus-vpr-4616:*" -latest_file_version]
 set jobs 8
 
@@ -34,7 +35,7 @@ update_ip_catalog -rebuild
 
 add_files -fileset constrs_1 $static_xdc_list
 
-source $bd_tcl_dir/DFX_RP_bram_gpio.tcl
+source $dfx_dir/bram_gpio/bd/DFX_RP_bram_gpio.tcl
 source $bd_tcl_dir/config_bd.tcl
 
 save_bd_design
