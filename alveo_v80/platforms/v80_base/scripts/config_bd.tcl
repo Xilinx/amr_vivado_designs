@@ -103,9 +103,10 @@ if { $bCheckIPs == 1 } {
    set list_check_ips "\
 xilinx.com:ip:versal_cips:*\
 xilinx.com:ip:axi_noc:*\
+xilinx.com:ip:proc_sys_reset:*\
 xilinx.com:ip:smartconnect:*\
 xilinx.com:ip:axi_gpio:*\
-xilinx.com:ip:proc_sys_reset:*\
+xilinx.com:ip:smbus:*\
 "
 
    set list_ips_missing ""
@@ -134,6 +135,80 @@ if { $bCheckIPsPassed != 1 } {
 # DESIGN PROCs
 ##################################################################
 
+
+# Hierarchical cell: smbus_hier
+proc create_hier_cell_smbus_hier { parentCell nameHier } {
+
+  variable script_folder
+
+  if { $parentCell eq "" || $nameHier eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2092 -severity "ERROR" "create_hier_cell_smbus_hier() - Empty argument(s)!"}
+     return
+  }
+
+  # Get object for parentCell
+  set parentObj [get_bd_cells $parentCell]
+  if { $parentObj == "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2090 -severity "ERROR" "Unable to find parent cell <$parentCell>!"}
+     return
+  }
+
+  # Make sure parentObj is hier blk
+  set parentType [get_property TYPE $parentObj]
+  if { $parentType ne "hier" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2091 -severity "ERROR" "Parent <$parentObj> has TYPE = <$parentType>. Expected to be <hier>."}
+     return
+  }
+
+  # Save current instance; Restore later
+  set oldCurInst [current_bd_instance .]
+
+  # Set parent object as current
+  current_bd_instance $parentObj
+
+  # Create cell and set as current instance
+  set hier_obj [create_bd_cell -type hier $nameHier]
+  current_bd_instance $hier_obj
+
+  # Create interface pins
+  create_bd_intf_pin -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 S00_AXI
+
+  create_bd_intf_pin -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 SMBUS_0
+
+
+  # Create pins
+  create_bd_pin -dir I -type clk s_axi_aclk
+  create_bd_pin -dir I -type rst aresetn
+  create_bd_pin -dir I -type rst s_axi_aresetn
+  create_bd_pin -dir O -type intr ip2intc_irpt
+
+  # Create instance: smartconnect_0, and set properties
+  set smartconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect smartconnect_0 ]
+  set_property CONFIG.NUM_SI {1} $smartconnect_0
+
+
+  # Create instance: smbus_0, and set properties
+  set smbus_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:smbus smbus_0 ]
+
+  # Create interface connections
+  connect_bd_intf_net -intf_net cips_M_AXI_LPD [get_bd_intf_pins S00_AXI] [get_bd_intf_pins smartconnect_0/S00_AXI]
+  connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins smbus_0/s_axi] [get_bd_intf_pins smartconnect_0/M00_AXI]
+  connect_bd_intf_net -intf_net smbus_0_SMBUS [get_bd_intf_pins SMBUS_0] [get_bd_intf_pins smbus_0/SMBUS]
+
+  # Create port connections
+  connect_bd_net -net cips_pl0_ref_clk  [get_bd_pins s_axi_aclk] \
+  [get_bd_pins smbus_0/s_axi_aclk] \
+  [get_bd_pins smartconnect_0/aclk]
+  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn  [get_bd_pins aresetn] \
+  [get_bd_pins smartconnect_0/aresetn]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn  [get_bd_pins s_axi_aresetn] \
+  [get_bd_pins smbus_0/s_axi_aresetn]
+  connect_bd_net -net smbus_0_ip2intc_irpt  [get_bd_pins smbus_0/ip2intc_irpt] \
+  [get_bd_pins ip2intc_irpt]
+
+  # Restore current instance
+  current_bd_instance $oldCurInst
+}
 
 # Hierarchical cell: PF1
 proc create_hier_cell_PF1 { parentCell nameHier } {
@@ -175,6 +250,7 @@ proc create_hier_cell_PF1 { parentCell nameHier } {
 
   # Create pins
   create_bd_pin -dir I -type clk s_axi_aclk
+  create_bd_pin -dir I -type rst s_axi_aresetn
   create_bd_pin -dir I -type rst aresetn
 
   # Create instance: smartconnect_pf1, and set properties
@@ -190,25 +266,19 @@ proc create_hier_cell_PF1 { parentCell nameHier } {
   ] $axi_gpio_test_pf1
 
 
-  # Create instance: proc_sys_reset_0, and set properties
-  set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 proc_sys_reset_0 ]
-
   # Create interface connections
   connect_bd_intf_net -intf_net axi_noc_cips_M01_AXI [get_bd_intf_pins S00_AXI] [get_bd_intf_pins smartconnect_pf1/S00_AXI]
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_pins smartconnect_pf1/M00_AXI] [get_bd_intf_pins axi_gpio_test_pf1/S_AXI]
 
   # Create port connections
   connect_bd_net -net aresetn_1  [get_bd_pins aresetn] \
-  [get_bd_pins proc_sys_reset_0/ext_reset_in]
+  [get_bd_pins smartconnect_pf1/aresetn]
   connect_bd_net -net axi_gpio_0_gpio_io_o  [get_bd_pins axi_gpio_test_pf1/gpio_io_o] \
   [get_bd_pins axi_gpio_test_pf1/gpio_io_i]
   connect_bd_net -net cips_pl0_ref_clk  [get_bd_pins s_axi_aclk] \
   [get_bd_pins axi_gpio_test_pf1/s_axi_aclk] \
-  [get_bd_pins smartconnect_pf1/aclk] \
-  [get_bd_pins proc_sys_reset_0/slowest_sync_clk]
-  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn  [get_bd_pins proc_sys_reset_0/interconnect_aresetn] \
-  [get_bd_pins smartconnect_pf1/aresetn]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn  [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
+  [get_bd_pins smartconnect_pf1/aclk]
+  connect_bd_net -net s_axi_aresetn_1  [get_bd_pins s_axi_aresetn] \
   [get_bd_pins axi_gpio_test_pf1/s_axi_aresetn]
 
   # Restore current instance
@@ -321,6 +391,7 @@ proc create_root_design { parentCell } {
 
   set gt_pciea1 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gt_rtl:1.0 gt_pciea1 ]
 
+  set smbus_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:iic_rtl:1.0 smbus_0 ]
 
 
   # Create ports
@@ -649,7 +720,7 @@ proc create_root_design { parentCell } {
  ] [get_bd_pins /axi_noc_cips/aclk3]
 
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_BUSIF {M00_AXI:M01_AXI} \
+   CONFIG.ASSOCIATED_BUSIF {M00_AXI} \
  ] [get_bd_pins /axi_noc_cips/aclk4]
 
   set_property -dict [ list \
@@ -749,6 +820,12 @@ proc create_root_design { parentCell } {
   # Create instance: PF1
   create_hier_cell_PF1 [current_bd_instance .] PF1
 
+  # Create instance: proc_sys_reset_0, and set properties
+  set proc_sys_reset_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset proc_sys_reset_0 ]
+
+  # Create instance: smbus_hier
+  create_hier_cell_smbus_hier [current_bd_instance .] smbus_hier
+
   # Create interface connections
   connect_bd_intf_net -intf_net axi_noc_cips_M00_AXI [get_bd_intf_pins axi_noc_cips/M00_AXI] [get_bd_intf_pins PF1/S00_AXI]
   connect_bd_intf_net -intf_net axi_noc_cips_M00_INI [get_bd_intf_pins axi_noc_cips/M00_INI] [get_bd_intf_pins axi_noc_mc_ddr4_0/S00_INI]
@@ -764,11 +841,13 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net cips_FPD_CCI_NOC_2 [get_bd_intf_pins cips/FPD_CCI_NOC_2] [get_bd_intf_pins axi_noc_cips/S06_AXI]
   connect_bd_intf_net -intf_net cips_FPD_CCI_NOC_3 [get_bd_intf_pins cips/FPD_CCI_NOC_3] [get_bd_intf_pins axi_noc_cips/S07_AXI]
   connect_bd_intf_net -intf_net cips_LPD_AXI_NOC_0 [get_bd_intf_pins cips/LPD_AXI_NOC_0] [get_bd_intf_pins axi_noc_cips/S03_AXI]
+  connect_bd_intf_net -intf_net cips_M_AXI_LPD [get_bd_intf_pins cips/M_AXI_LPD] [get_bd_intf_pins smbus_hier/S00_AXI]
   connect_bd_intf_net -intf_net cips_PCIE1_GT [get_bd_intf_pins cips/PCIE1_GT] [get_bd_intf_ports gt_pciea1]
   connect_bd_intf_net -intf_net cips_PMC_NOC_AXI_0 [get_bd_intf_pins cips/PMC_NOC_AXI_0] [get_bd_intf_pins axi_noc_cips/S02_AXI]
   connect_bd_intf_net -intf_net gt_pcie_refclk_1 [get_bd_intf_ports gt_pcie_refclk] [get_bd_intf_pins cips/gt_refclk1]
   connect_bd_intf_net -intf_net hbm_ref_clk_0_1 [get_bd_intf_ports hbm_ref_clk_0] [get_bd_intf_pins axi_noc_cips/hbm_ref_clk0]
   connect_bd_intf_net -intf_net hbm_ref_clk_1_1 [get_bd_intf_ports hbm_ref_clk_1] [get_bd_intf_pins axi_noc_cips/hbm_ref_clk1]
+  connect_bd_intf_net -intf_net smbus_0_SMBUS [get_bd_intf_ports SMBUS_0] [get_bd_intf_pins smbus_hier/SMBUS_0]
   connect_bd_intf_net -intf_net sys_clk0_0_1 [get_bd_intf_ports sys_clk0_0] [get_bd_intf_pins axi_noc_mc_ddr4_0/sys_clk0]
   connect_bd_intf_net -intf_net sys_clk0_1_1 [get_bd_intf_ports sys_clk0_1] [get_bd_intf_pins axi_noc_mc_ddr4_1/sys_clk0]
 
@@ -791,13 +870,23 @@ proc create_root_design { parentCell } {
   [get_bd_pins cips/m_axi_lpd_aclk] \
   [get_bd_pins axi_noc_cips/aclk4] \
   [get_bd_pins axi_noc_mc_ddr4_1/aclk0] \
-  [get_bd_pins PF1/s_axi_aclk]
+  [get_bd_pins PF1/s_axi_aclk] \
+  [get_bd_pins proc_sys_reset_0/slowest_sync_clk] \
+  [get_bd_pins smbus_hier/s_axi_aclk]
   connect_bd_net -net cips_pl0_resetn  [get_bd_pins cips/pl0_resetn] \
-  [get_bd_pins PF1/aresetn]
+  [get_bd_pins proc_sys_reset_0/ext_reset_in]
   connect_bd_net -net cips_pl2_ref_clk  [get_bd_pins cips/pl2_ref_clk] \
   [get_bd_pins cips/dma1_intrfc_clk]
   connect_bd_net -net cips_pmc_axi_noc_axi0_clk  [get_bd_pins cips/pmc_axi_noc_axi0_clk] \
   [get_bd_pins axi_noc_cips/aclk2]
+  connect_bd_net -net proc_sys_reset_0_interconnect_aresetn  [get_bd_pins proc_sys_reset_0/interconnect_aresetn] \
+  [get_bd_pins PF1/aresetn] \
+  [get_bd_pins smbus_hier/aresetn]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn  [get_bd_pins proc_sys_reset_0/peripheral_aresetn] \
+  [get_bd_pins PF1/s_axi_aresetn] \
+  [get_bd_pins smbus_hier/s_axi_aresetn]
+  connect_bd_net -net smbus_0_ip2intc_irpt  [get_bd_pins smbus_hier/ip2intc_irpt] \
+  [get_bd_pins cips/pl_ps_irq1]
 
   # Create address segments
   assign_bd_address -offset 0x004000000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces cips/CPM_PCIE_NOC_0] [get_bd_addr_segs axi_noc_cips/S00_AXI/HBM0_PC0] -force
@@ -887,6 +976,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/FPD_CCI_NOC_3] [get_bd_addr_segs axi_noc_mc_ddr4_0/S01_INI/C1_DDR_LOW0] -force
   assign_bd_address -offset 0x060000000000 -range 0x000800000000 -target_address_space [get_bd_addr_spaces cips/FPD_CCI_NOC_3] [get_bd_addr_segs axi_noc_mc_ddr4_1/S01_INI/C1_DDR_CH2] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/LPD_AXI_NOC_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_LOW0] -force
+  assign_bd_address -offset 0x80044000 -range 0x00001000 -target_address_space [get_bd_addr_spaces cips/M_AXI_LPD] [get_bd_addr_segs smbus_hier/smbus_0/s_axi/reg0] -force
   assign_bd_address -offset 0x050080000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/PMC_NOC_AXI_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_CH1] -force
   assign_bd_address -offset 0x00000000 -range 0x80000000 -target_address_space [get_bd_addr_spaces cips/PMC_NOC_AXI_0] [get_bd_addr_segs axi_noc_mc_ddr4_0/S00_INI/C0_DDR_LOW0] -force
   assign_bd_address -offset 0x060000000000 -range 0x000800000000 -target_address_space [get_bd_addr_spaces cips/PMC_NOC_AXI_0] [get_bd_addr_segs axi_noc_mc_ddr4_1/S00_INI/C0_DDR_CH2] -force
