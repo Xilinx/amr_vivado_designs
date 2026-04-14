@@ -8,27 +8,18 @@ The emb_plus_ve2302 hw_platform targets the ve2302 FPGA.
 
 ## Contents
 
-This repo contains several flat designs (non-DFX) and a DFX design with a single
-reconfigurable region.
-
-### Flat Designs
-- ve2302_1gEth      - Two channels of 1G Ethernet
-- ve2302_10g_mrmac  - Two 10G Ethernet channels utilizing the MRMAC hard block in Versal
-- ve2302_gmsl       - Versal-only GMSL pipeline
-- ve2302_xdma_gmsl  - GMSL pipeline with XDMA/PCIe
-
 ### DFX Designs
 
 Consists of the base design and different modules that can be inserted into the
 reconfigurable region.
 
-- ve2302_xdma_base  - Base design for DFX, initially containing the bram_gpio RM.
+- ve2302_xdma_base  - Base design for DFX
 
 There are currently two RMs available for this design, but the repo will expand
 to contain more in the future.
 
-- bram_gpio
-- just_bram
+- bram_gpio 	(simple design for testing)
+- eth_10g 	(dual 10g MRMAC paths)
 
 ## Tools Version
 
@@ -38,26 +29,38 @@ This branch is targeting the Vivado 2026.1 tools.
 
 To clone this repo, run:
 ```
-git clone https://github.com/Xilinx/emb_plus_vivado_designs.git
+git clone https://github.com/Xilinx/amr_vivado_designs.git
 ```
 
 ## Directory Structure
 
 The directory structure of the repository is shown as follows:
 ```
-emb_plus_vivado_designs
+amr_vivado_designs
++-- alveo_v80
+| +-- platforms
+| |  +-- scripts
+| |  +-- v80_base
 +-- emb_plus_ve2302
-¦ +-- dfx
-¦ ¦  +-- bram_gpio
-¦ ¦  +-- just_bram
-¦ +-- platforms
-¦ ¦  +-- scripts
-¦ ¦  +-- ve2302_1gEth
-¦ ¦  +-- ve2302_10g_mrmac
-¦ ¦  +-- ve2302_gmsl
-¦ ¦  +-- ve2302_xdma_base
-¦ ¦  +-- ve2302_xdma_gmsl
-+-- README
+| +-- platforms
+| |  +-- ip 
+| |  +-- scripts
+| |  +-- ve2302_amr_base
+| |  | +-- dfx
+| |  | |  +-- bram_gpio
+| |  | +-- scripts 
+| |  | +-- xdc
+| |  +-- ve2302_xdma_base
+| |  | +-- dfx
+| |  | |  +-- bram_gpio
+| |  | |  +-- common
+| |  | |  +-- eth_10g 
+| |  | |  +-- training
+| |  | +-- hdl
+| |  | +-- scripts 
+| |  | +-- xdc
++-- LICENSE
++-- README.md
 ```
 
 ## Build Instructions
@@ -73,5 +76,5 @@ The outputs of the Vivado build will be under project directory for each platfor
 
 ## License
 
-Copyright (C) 2024 - 2025 Advanced Micro Devices, Inc.
+Copyright (C) 2024 - 2026 Advanced Micro Devices, Inc.
 SPDX-License-Identifier: MIT
