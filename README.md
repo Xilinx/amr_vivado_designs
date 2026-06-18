@@ -1,19 +1,19 @@
-# emb_plus_vivado_designs
+# amr_vivado_designs
 
 
 ## Introduction
 
-This repo is used to capture Vivado XSA generation of the Embedded+ HW/PL platform
-The emb_plus_ve2302 hw_platform targets the ve2302 FPGA.
+This repo is used to capture Vivado XSA generation of designs using AMR as the 
+board management layer.
 
 ## Contents
 
-### DFX Designs
+### DFX Designs on Embedded Plus ve2302
 
 Consists of the base design and different modules that can be inserted into the
 reconfigurable region.
 
-- ve2302_xdma_base  - Base design for DFX
+- ve2302_xdma_base  - Base design for users to add DFX modules
 
 There are currently two RMs available for this design, but the repo will expand
 to contain more in the future.

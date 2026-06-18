@@ -24,7 +24,7 @@ SDT_SCRIPT_DIR = ../scripts
 SDT_SRC = $(SDT_SCRIPT_DIR)/gen_sdt_dfx.tcl
 
 # deb
-VERSION = 2.0
+VERSION = 3.0
 MAINTAINER = AMD
 BOARD = ve2302
 DFX_LIST := bram_gpio
