@@ -3,7 +3,7 @@
 
 ## Introduction
 
-This repo is used to capture Vivado XSA generation of designs using AMR as the 
+This repo is used to capture Vivado XSA generation of designs using AMR as the
 board management layer.
 
 ## Contents
@@ -23,7 +23,7 @@ to contain more in the future.
 
 ## Tools Version
 
-This branch is targeting the Vivado 2026.1 tools.
+This branch is targeting the Vivado 2026.2 tools.
 
 ## Instructions
 
@@ -43,21 +43,21 @@ amr_vivado_designs
 | |  +-- v80_base
 +-- emb_plus_ve2302
 | +-- platforms
-| |  +-- ip 
+| |  +-- ip
 | |  +-- scripts
 | |  +-- ve2302_amr_base
 | |  | +-- dfx
 | |  | |  +-- bram_gpio
-| |  | +-- scripts 
+| |  | +-- scripts
 | |  | +-- xdc
 | |  +-- ve2302_xdma_base
 | |  | +-- dfx
 | |  | |  +-- bram_gpio
 | |  | |  +-- common
-| |  | |  +-- eth_10g 
+| |  | |  +-- eth_10g
 | |  | |  +-- training
 | |  | +-- hdl
-| |  | +-- scripts 
+| |  | +-- scripts
 | |  | +-- xdc
 +-- LICENSE
 +-- README.md
