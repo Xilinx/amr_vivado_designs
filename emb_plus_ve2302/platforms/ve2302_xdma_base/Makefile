@@ -71,6 +71,7 @@ $(VIV_XSA): $(VIV_SRC) $(VIV_CONFIG)
 sdt: $(SDT_SRC) $(VIV_XSA)
 	$(SDTGEN) $(SDT_SRC) -xsa_path $(VIV_XSA) -rm "$(DFX_XSA_LIST)"
 	tclsh $(SDT_SCRIPT_DIR)/fix_dtsi.tcl
+	tclsh $(SDT_SCRIPT_DIR)/fix_partial_dtsi.tcl
 
 .PHONY: deb
 deb: $(DEB_FILES_LIST)
