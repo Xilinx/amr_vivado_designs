@@ -28,7 +28,7 @@ env:
 jobs:
 
   setup:
-    runs-on: self-hosted
+    runs-on: paeg-runner
 
     outputs:
       tool_build: ${{ steps.vars.outputs.tool_build }}
