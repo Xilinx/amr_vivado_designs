@@ -1,0 +1,172 @@
+name: Build Platforms
+
+on:
+  push:
+    branches:
+      - main
+      - '**'
+    paths:
+      - 'platforms/**'
+      - 'dfx/**'
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: '0 21 * * *'
+
+env:
+  DEPLOY_BRANCH: main
+  TOOL_RELEASE: "2026.2"
+  AUTO_BRANCH: "2025.1"
+  PFM_VER: "202620_1"
+
+  PAEG_LSF_MEM: "65536"
+  PAEG_LSF_QUEUE: "long"
+
+  HOSTS: "localhost"
+
+jobs:
+
+  setup:
+    runs-on: self-hosted
+
+    outputs:
+      tool_build: ${{ steps.vars.outputs.tool_build }}
+      build_id: ${{ steps.vars.outputs.build_id }}
+      build_date: ${{ steps.vars.outputs.build_date }}
+
+    steps:
+      - id: vars
+        shell: bash
+        run: |
+
+          TOOL_BUILD=$(readlink /proj/xbuilds/${TOOL_RELEASE}_daily_latest \
+            | sed -r "s/${TOOL_RELEASE}_(.*)/\1/")
+
+          BUILD_DATE=$(date +"%m%d%H%M")
+
+          if [[ "${GITHUB_REF_NAME}" == "${DEPLOY_BRANCH}" ]]; then
+            BUILD_ID="${BUILD_DATE}"
+          else
+            BUILD_ID="${GITHUB_REF_NAME}"
+          fi
+
+          echo "tool_build=${TOOL_BUILD}" >> $GITHUB_OUTPUT
+          echo "build_date=${BUILD_DATE}" >> $GITHUB_OUTPUT
+          echo "build_id=${BUILD_ID}" >> $GITHUB_OUTPUT
+
+  build:
+    needs: setup
+
+    runs-on: self-hosted
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pfm_name: ve2302_xdma_base
+            board: emb_plus_ve2302
+
+          - pfm_name: ve2302_amr_base
+            board: emb_plus_ve2302
+
+          - pfm_name: v80_base
+            board: alveo_v80
+
+    env:
+      TOOL_BUILD: ${{ needs.setup.outputs.tool_build }}
+      BUILD_ID: ${{ needs.setup.outputs.build_id }}
+
+      PAEG_BASE_DIR: /wrk/paeg_builds/build-artifacts/amr-vivado-designs/2026.2
+      DEPLOY_MAX: 15
+
+    steps:
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          path: src
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Checkout paeg-helper
+        uses: actions/checkout@v4
+        with:
+          repository: PAEG/paeg-automation
+          ref: 2025.1
+          path: paeg-helper
+          token: ${{ secrets.PAEG_AUTOMATION_TOKEN }}
+
+      - name: Set variables
+        shell: bash
+        run: |
+          echo "WS=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          echo "WORK_DIR=${GITHUB_WORKSPACE}/build/${{ matrix.pfm_name }}" >> $GITHUB_ENV
+          echo "SETUP=${GITHUB_WORKSPACE}/paeg-helper/env-setup.sh" >> $GITHUB_ENV
+          echo "DEPLOY_DIR=${PAEG_BASE_DIR}/${BUILD_ID}" >> $GITHUB_ENV
+
+      - name: Create Build Directory
+        shell: bash
+        run: |
+          if [ ! -d "${WORK_DIR}" ]; then
+            mkdir -p "${WORK_DIR}"
+            cp -rf "${GITHUB_WORKSPACE}/src/"* "${WORK_DIR}"
+          fi
+
+      - name: Build XSA
+        shell: bash
+        run: |
+          pushd ${WORK_DIR}/${{ matrix.board }}/platforms/${{ matrix.pfm_name }}
+
+          source ${SETUP} -r ${TOOL_RELEASE} -b ${TOOL_BUILD}
+          set -e
+
+          bsub \
+            -R "select[osdistro==ubuntu&&osver>=2204]" \
+            -R "rusage[mem=${PAEG_LSF_MEM}]" \
+            -Is \
+            -q sil_ssw \
+            make all JOBS=32
+
+          popd
+
+      - name: Deploy Base XSA
+        if: success()
+        shell: bash
+        run: |
+          pushd ${WORK_DIR}/${{ matrix.board }}/platforms/${{ matrix.pfm_name }}/project
+
+          DSTDIR=${DEPLOY_DIR}/Vivado_files
+
+          mkdir -p ${DSTDIR}/${{ matrix.pfm_name }}
+
+          cp *.xsa ${DSTDIR}/${{ matrix.pfm_name }}
+
+          rsync -avh --delete \
+            ${WORK_DIR}/${{ matrix.board }}/platforms/${{ matrix.pfm_name }}/project \
+            ${DSTDIR}/${{ matrix.pfm_name }}
+
+      - name: Deploy Debian Package
+        if: success()
+        shell: bash
+        run: |
+          pushd ${WORK_DIR}/${{ matrix.board }}/platforms/${{ matrix.pfm_name }}
+
+          DSTDIR=${DEPLOY_DIR}/Vivado_files
+
+          cp *.deb ${DSTDIR}/${{ matrix.pfm_name }}
+
+          rsync -avh --delete \
+            ${WORK_DIR}/${{ matrix.board }}/platforms/${{ matrix.pfm_name }}/project \
+            ${DSTDIR}/${{ matrix.pfm_name }}
+
+      - name: Log Commit IDs
+        if: always()
+        shell: bash
+        run: |
+          IDFILE=${GITHUB_WORKSPACE}/commitIDs
+
+          pushd ${GITHUB_WORKSPACE}/src
+
+          echo "src-branch : ${GITHUB_REF_NAME
+
