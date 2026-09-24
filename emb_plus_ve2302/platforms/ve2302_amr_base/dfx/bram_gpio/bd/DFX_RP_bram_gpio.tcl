@@ -1,4 +1,4 @@
-# Copyright (C) 2025 Advanced Micro Devices, Inc.
+# Copyright (C) 2025 - 2026 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 ################################################################
@@ -154,7 +154,6 @@ if { $bCheckIPsPassed != 1 } {
 # procedure reusable. If parentCell is "", will use root.
 proc create_root_design { parentCell } {
 
-  variable script_folder
   variable design_name
 
   if { $parentCell eq "" } {
@@ -186,29 +185,25 @@ proc create_root_design { parentCell } {
   ## DFX_RP_bram_gpio Logic Begins
   ##
   ####################################################################
-  set PCIE_PL_INI [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:inimm_rtl:1.0 -portmaps { \
-   INTERNOC { physical_name PCIE_PL_INI_internoc direction I left 0 right 0 } \
-   } \
-  PCIE_PL_INI ]
+  set PCIE_PL_INI [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:inimm_rtl:1.0 PCIE_PL_INI ]
   set_property -dict [ list \
    CONFIG.ADDR_WIDTH {64} \
    CONFIG.COMPUTED_STRATEGY {load} \
    CONFIG.INI_STRATEGY {load} \
    ] $PCIE_PL_INI
+  set_property APERTURES {{0x202_0100_0000 16M}} [get_bd_intf_ports PCIE_PL_INI]
 
 
-  set pl_1_clk [ create_bd_port -dir I -type clk -freq_hz 199999802 pl_1_clk ]
+  # Create ports
+  set pl1_clk [ create_bd_port -dir I -type clk -freq_hz 199999802 pl1_clk ]
   set_property -dict [ list \
-   CONFIG.ASSOCIATED_RESET {pl_1_resetn} \
- ] $pl_1_clk
-
-  set pl_1_resetn [ create_bd_port -dir I -type rst pl_1_resetn ]
-  set_property -dict [ list \
-   CONFIG.POLARITY {ACTIVE_LOW} \
- ] $pl_1_resetn
+   CONFIG.ASSOCIATED_PORT {PCIE_PL_INI} \
+   CONFIG.ASSOCIATED_RESET {pl1_resetn} \
+ ] $pl1_clk
+  set pl1_resetn [ create_bd_port -dir I -type rst pl1_resetn ]
 
   # Create instance: axi_noc_fixed, and set properties
-  set axi_noc_fixed [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc:1.1 axi_noc_fixed ]
+  set axi_noc_fixed [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_noc axi_noc_fixed ]
   set_property -dict [list \
     CONFIG.NUM_CLKS {1} \
     CONFIG.NUM_MI {1} \
@@ -218,7 +213,7 @@ proc create_root_design { parentCell } {
   ] $axi_noc_fixed
 
   set_property -dict [ list \
-   CONFIG.APERTURES {{0x202_0000_0000 16M}} \
+   CONFIG.APERTURES {{0x202_0100_0000 16M}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins $axi_noc_fixed/M00_AXI]
 
@@ -278,14 +273,14 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_noc_fixed_M00_AXI [get_bd_intf_pins axi_noc_fixed/M00_AXI] [get_bd_intf_pins smartconnect_1/S00_AXI]
 
   # Create port connections
-  connect_bd_net -net pl_1_clk  [get_bd_ports pl_1_clk] \
+  connect_bd_net -net pl1_clk  [get_bd_ports pl1_clk] \
   [get_bd_pins axi_test_gpio_pf1/s_axi_aclk] \
   [get_bd_pins axi_gpio_0/s_axi_aclk] \
   [get_bd_pins axi_noc_fixed/aclk0] \
   [get_bd_pins axi_bram_ctrl_0/s_axi_aclk] \
   [get_bd_pins proc_sys_reset_0/slowest_sync_clk] \
   [get_bd_pins smartconnect_1/aclk]
-  connect_bd_net -net pl_1_resetn_1  [get_bd_ports pl_1_resetn] \
+  connect_bd_net -net pl1_resetn  [get_bd_ports pl1_resetn] \
   [get_bd_pins proc_sys_reset_0/ext_reset_in]
   connect_bd_net -net proc_sys_reset_0_interconnect  [get_bd_pins proc_sys_reset_0/interconnect_aresetn] \
   [get_bd_pins smartconnect_1/aresetn]
@@ -305,9 +300,9 @@ proc create_root_design { parentCell } {
   # Versal control
 
   # PCIe Control
-  assign_bd_address -offset 0x020200030000 -range 8K -target_address_space [get_bd_addr_spaces PCIE_PL_INI] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
-  assign_bd_address -offset 0x020200010000 -range 4K -target_address_space [get_bd_addr_spaces PCIE_PL_INI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
-  assign_bd_address -offset 0x020200020000 -range 4K -target_address_space [get_bd_addr_spaces PCIE_PL_INI] [get_bd_addr_segs axi_test_gpio_pf1/S_AXI/Reg] -force
+  assign_bd_address -offset 0x020201000000 -range 8K -target_address_space [get_bd_addr_spaces PCIE_PL_INI] [get_bd_addr_segs axi_bram_ctrl_0/S_AXI/Mem0] -force
+  assign_bd_address -offset 0x020201020000 -range 4K -target_address_space [get_bd_addr_spaces PCIE_PL_INI] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
+  assign_bd_address -offset 0x020201030000 -range 4K -target_address_space [get_bd_addr_spaces PCIE_PL_INI] [get_bd_addr_segs axi_test_gpio_pf1/S_AXI/Reg] -force
 
   # Restore current instance
   current_bd_instance $oldCurInst
