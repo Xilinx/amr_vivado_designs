@@ -63,7 +63,12 @@
   set GT_Serial [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gt_rtl:1.0 -default_portmap GT_Serial ]
   set_property HDL_ATTRIBUTE.LOCKED TRUE $GT_Serial
 
-    # Create ports to STATIC REGION
+  set RGMII_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:rgmii_rtl:1.0 -default_portmap RGMII_0 ]
+  set_property HDL_ATTRIBUTE.LOCKED TRUE $RGMII_0
+  set RGMII_1 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:rgmii_rtl:1.0 -default_portmap RGMII_1 ]
+  set_property HDL_ATTRIBUTE.LOCKED TRUE $RGMII_1
+
+  # Create ports to STATIC REGION
   set pcie_aclk [ create_bd_port -dir I -type clk -freq_hz 125000000 pcie_aclk ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_RESET {pcie_aresetn} \
@@ -97,6 +102,16 @@
 
   set lpd_interrupt [ create_bd_port -dir O -type intr lpd_interrupt ]
   set fpd_interrupt [ create_bd_port -dir O -type intr fpd_interrupt ]
+
+  # Create unique I/O ports to/from Board for 1G Ethernet
+  set clk1_25MHz [ create_bd_port -dir I clk1_25MHz ]
+  set clk2_25MHz [ create_bd_port -dir I clk2_25MHz ]
+  set mdc_0 [ create_bd_port -dir IO mdc_0 ]
+  set mdc_1 [ create_bd_port -dir IO mdc_1 ]
+  set mdio_0 [ create_bd_port -dir IO mdio_0 ]
+  set mdio_1 [ create_bd_port -dir IO mdio_1 ]
+  set reset_phy_1_n [ create_bd_port -dir IO reset_phy_1_n ]
+  set reset_phy_0_n [ create_bd_port -dir IO reset_phy_0_n ]
 
   # Create instance: axi_noc_fixed_0, and set properties
   # Interface to STATIC_DESIGN/M_PL_INI

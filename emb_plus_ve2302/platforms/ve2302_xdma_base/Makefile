@@ -27,7 +27,7 @@ SDT_SRC = $(SDT_SCRIPT_DIR)/gen_sdt_dfx.tcl
 VERSION = 3.0
 MAINTAINER = AMD
 BOARD = ve2302
-DFX_LIST := bram_gpio 10gEth
+DFX_LIST := bram_gpio 1gEth 10gEth
 # Build up lists
 DFX_FILES_LIST := $(foreach DFX,$(DFX_LIST),$(VIV_PRJ_DIR)/partial_pdis/$(DFX)_partial.pdi)
 DEB_FILES_LIST := $(foreach DFX,$(DFX_LIST),amr-$(DFX)-dma-test-$(BOARD)_$(VERSION).deb)
