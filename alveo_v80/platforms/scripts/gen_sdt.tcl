@@ -13,5 +13,5 @@ for { set i 0 } { $i < $argc } { incr i } {
 sdtgen set_dt_param -debug enable
 sdtgen set_dt_param -dir ./project_sdt
 sdtgen set_dt_param -xsa $xsa_path
-sdtgen set_dt_param -board_dts versal-v80-rev1.0
+sdtgen set_dt_param -board_dts versal-emb-plus-ve2302-reva
 sdtgen generate_sdt

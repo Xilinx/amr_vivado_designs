@@ -1,4 +1,4 @@
-# Copyright (C) 2025 - 2026 Advanced Micro Devices, Inc.
+# Copyright (C) 2025 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
   # Create interface ports to STATIC_DESIGN
@@ -57,7 +57,13 @@
    ] $S00_INI
   set_property HDL_ATTRIBUTE.LOCKED {TRUE} [get_bd_intf_ports S00_INI]
 
-  # Create ports to STATIC REGION
+# Create unique I/O interface ports to/from board for 10G Ethernet design
+  set CLK_IN_D [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 -default_portmap CLK_IN_D ]
+  set_property HDL_ATTRIBUTE.LOCKED TRUE $CLK_IN_D
+  set GT_Serial [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gt_rtl:1.0 -default_portmap GT_Serial ]
+  set_property HDL_ATTRIBUTE.LOCKED TRUE $GT_Serial
+
+    # Create ports to STATIC REGION
   set pcie_aclk [ create_bd_port -dir I -type clk -freq_hz 125000000 pcie_aclk ]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_RESET {pcie_aresetn} \
